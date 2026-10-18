@@ -32,7 +32,7 @@
       const li = document.createElement('li');
       const a = document.createElement('a'); a.href = '/collect/' + s.id; a.className = 'grow'; a.style.color = 'inherit';
       const b = document.createElement('b'); b.textContent = s.name;
-      const sp = document.createElement('span'); sp.className = 'small muted'; sp.textContent = s.grade + s.division;
+      const sp = document.createElement('span'); sp.className = 'small muted'; sp.textContent = 'Class ' + s.grade;
       a.append(b, sp);
       const badge = document.createElement('span');
       badge.className = 'badge ' + (s.pending > 0 ? 'warn' : 'ok');

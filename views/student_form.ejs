@@ -8,9 +8,7 @@
     <div><label>Class *</label>
       <select name="class_id" required>
         <option value="">Select class</option>
-        <% [...new Set(classes.map(c => c.grade))].forEach(g => { %><optgroup label="Class <%= g %>">
-          <% classes.filter(c => c.grade === g).forEach(c => { %><option value="<%= c.id %>" <%= Number(student.class_id) === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %> (<%= fmtMoney(c.monthly_fee) %>/month)</option><% }) %>
-        </optgroup><% }) %>
+        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= Number(student.class_id) === c.id ? 'selected' : '' %>>Class <%= c.grade %> (<%= fmtMoney(c.monthly_fee) %>/month)</option><% }) %>
       </select></div>
     <div><label>Fees start from</label><input type="month" name="join_month" value="<%= student.join_month %>" required></div>
   </div>

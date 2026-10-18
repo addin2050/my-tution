@@ -5,7 +5,7 @@
     <div><label>Class</label>
       <select name="class_id" onchange="this.form.submit()">
         <option value="">Select class</option>
-        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>>Class <%= c.grade %></option><% }) %>
       </select></div>
     <div><label>Month</label><input type="month" name="month" value="<%= month %>" onchange="this.form.submit()"></div>
   </div>

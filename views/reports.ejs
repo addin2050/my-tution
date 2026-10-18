@@ -66,7 +66,7 @@
   <div class="card">
     <h2>By class</h2>
     <% if (!byClass.length) { %><p class="muted">No payments in this period.</p><% } %>
-    <table><% byClass.forEach(c => { %><tr><td><%= c.grade %><%= c.division %> <small class="muted">· <%= c.count %></small></td><td class="num"><%= fmtMoney(c.total) %></td></tr><% }) %></table>
+    <table><% byClass.forEach(c => { %><tr><td>Class <%= c.grade %> <small class="muted">· <%= c.count %></small></td><td class="num"><%= fmtMoney(c.total) %></td></tr><% }) %></table>
   </div>
 </div>
 
@@ -83,7 +83,7 @@
   <div class="scroll"><table>
     <% payments.forEach(p => { %>
       <tr>
-        <td><a href="/students/<%= p.student_id %>"><%= p.name %></a><br><small class="muted"><%= p.grade %><%= p.division %> · <%= p.method %></small></td>
+        <td><a href="/students/<%= p.student_id %>"><%= p.name %></a><br><small class="muted">Class <%= p.grade %> · <%= p.method %></small></td>
         <td class="nowrap"><small><%= fmtDate(p.paid_on) %></small><br><a class="small" href="/receipts/<%= p.id %>"><%= p.receipt_no %></a></td>
         <td class="num"><b><%= fmtMoney(p.amount) %></b></td>
       </tr>

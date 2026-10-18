@@ -30,7 +30,7 @@
   <% if (!defaulters.length) { %><p class="muted">Nobody has pending fees. 🎉</p><% } %>
   <ul class="list">
     <% defaulters.forEach(d => { %>
-      <li><div class="grow"><b><a href="/students/<%= d.id %>"><%= d.name %></a></b><span class="small muted"><%= d.grade %><%= d.division %> · <%= d.months %> month<%= d.months > 1 ? 's' : '' %></span></div>
+      <li><div class="grow"><b><a href="/students/<%= d.id %>"><%= d.name %></a></b><span class="small muted">Class <%= d.grade %> · <%= d.months %> month<%= d.months > 1 ? 's' : '' %></span></div>
       <b><%= fmtMoney(d.pending) %></b>
       <a class="btn sm secondary" href="/collect/<%= d.id %>">Collect</a></li>
     <% }) %>
@@ -42,7 +42,7 @@
   <% if (!recent.length) { %><p class="muted">No payments yet.</p><% } %>
   <ul class="list">
     <% recent.forEach(p => { %>
-      <li><div class="grow"><b><%= p.name %> <small class="muted">(<%= p.grade %><%= p.division %>)</small></b><span class="small muted"><%= p.receipt_no %> · <%= fmtDate(p.paid_on) %><%= p.status === 'void' ? ' · VOID' : '' %></span></div>
+      <li><div class="grow"><b><%= p.name %> <small class="muted">(Class <%= p.grade %>)</small></b><span class="small muted"><%= p.receipt_no %> · <%= fmtDate(p.paid_on) %><%= p.status === 'void' ? ' · VOID' : '' %></span></div>
       <b><%= fmtMoney(p.amount) %></b>
       <a class="btn sm secondary" href="/receipts/<%= p.id %>">View</a></li>
     <% }) %>

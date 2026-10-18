@@ -44,7 +44,7 @@ router.post('/settings/fees', (req, res) => {
       const fee = Number(req.body[`fee_${c.id}`]);
       if (Number.isInteger(fee) && fee >= 0) upd.run(fee, c.id);
       const wantShown = req.body[`show_${c.id}`] === '1';
-      if (!wantShown && students.get(c.id).n > 0) kept.push(`${c.grade}${c.division}`);
+      if (!wantShown && students.get(c.id).n > 0) kept.push(`Class ${c.grade}`);
       else setActive.run(wantShown ? 1 : 0, c.id);
     }
   })();

@@ -124,13 +124,24 @@ if (!db.prepare("SELECT 1 FROM pragma_table_info('classes') WHERE name = 'active
   db.exec('ALTER TABLE classes ADD COLUMN active INTEGER NOT NULL DEFAULT 1');
 }
 
-// Classes 1-10, divisions A-D. Missing ones are added on every start; existing classes keep their fee.
-{
-  const ins = db.prepare('INSERT OR IGNORE INTO classes (grade, division) VALUES (?, ?)');
-  db.transaction(() => {
-    for (let g = 1; g <= 10; g++) for (const d of ['A', 'B', 'C', 'D']) ins.run(g, d);
-  })();
-}
+// Divisions were dropped: one class per grade. Databases that still have 1A, 1B ... are merged into a
+// single class per grade, moving their students and no-class days across and keeping the first one's fee.
+db.transaction(() => {
+  for (const { grade } of db.prepare('SELECT DISTINCT grade FROM classes').all()) {
+    const rows = db.prepare("SELECT id, active FROM classes WHERE grade = ? ORDER BY (division = '') DESC, id").all(grade);
+    const [keep, ...others] = rows;
+    for (const o of others) {
+      db.prepare('UPDATE students SET class_id = ? WHERE class_id = ?').run(keep.id, o.id);
+      db.prepare('INSERT OR IGNORE INTO no_class (class_id, date) SELECT ?, date FROM no_class WHERE class_id = ?').run(keep.id, o.id);
+      db.prepare('DELETE FROM no_class WHERE class_id = ?').run(o.id);
+      db.prepare('DELETE FROM classes WHERE id = ?').run(o.id);
+    }
+    const anyActive = rows.some((r) => r.active) ? 1 : 0;
+    db.prepare("UPDATE classes SET division = '', active = ? WHERE id = ?").run(anyActive, keep.id);
+  }
+  const ins = db.prepare("INSERT OR IGNORE INTO classes (grade, division) VALUES (?, '')");
+  for (let g = 1; g <= 10; g++) ins.run(g);
+})();
 
 if (db.prepare('SELECT COUNT(*) AS n FROM users').get().n === 0) {
   const username = process.env.ADMIN_USER || 'admin';

@@ -1,6 +1,6 @@
 <%- include('partials/head', {title: student.name}) %>
 <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
-  <h1><%= student.name %> <span class="badge"><%= student.grade %><%= student.division %></span><% if (student.status !== 'active') { %> <span class="badge bad"><%= student.status %></span><% } %></h1>
+  <h1><%= student.name %> <span class="badge">Class <%= student.grade %></span><% if (student.status !== 'active') { %> <span class="badge bad"><%= student.status %></span><% } %></h1>
   <a class="btn sm secondary" href="/students/<%= student.id %>/edit">Edit</a>
 </div>
 

@@ -3,7 +3,7 @@
 Fee collection and attendance tracking for a tuition center. Node + Express + SQLite, mobile-first.
 
 ## Features
-- Classes 1A–10D (40 sections: grades 1–10, divisions A–D) with a fixed monthly fee per class
+- Classes 1–10 with a fixed monthly fee per class (classes you don't use can be hidden)
 - Monthly dues generated automatically; payments go to the oldest unpaid month first, extra amounts pay upcoming months in advance
 - Quick **Collect fee** flow, downloadable PDF receipts, WhatsApp receipt/reminder links
 - Student profile: pending amount, month-by-month status, past receipts, attendance

@@ -1,7 +1,7 @@
 <%- include('partials/head', {title: 'Collect fee'}) %>
 <h1>Collect fee</h1>
 <div class="card">
-  <b><a href="/students/<%= student.id %>"><%= student.name %></a></b> <span class="badge"><%= student.grade %><%= student.division %></span>
+  <b><a href="/students/<%= student.id %>"><%= student.name %></a></b> <span class="badge">Class <%= student.grade %></span>
   <div class="stats" style="margin:.8rem 0 0">
     <div class="stat <%= pending > 0 ? 'warn' : 'ok' %>"><div class="v"><%= fmtMoney(pending) %></div><div class="l">Pending</div></div>
     <div class="stat"><div class="v"><%= fmtMoney(student.monthly_fee) %></div><div class="l">Monthly fee</div></div>

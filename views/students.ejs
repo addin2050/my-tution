@@ -17,7 +17,7 @@
   <ul class="list">
     <% rows.forEach(s => { %>
       <li><div class="grow"><b><a href="/students/<%= s.id %>"><%= s.name %></a></b>
-        <span class="small muted"><%= s.grade %><%= s.division %><%= s.status !== 'active' ? ' · ' + s.status : '' %></span></div>
+        <span class="small muted">Class <%= s.grade %><%= s.status !== 'active' ? ' · ' + s.status : '' %></span></div>
         <% if (s.pending > 0) { %><span class="badge warn"><%= fmtMoney(s.pending) %> due</span><% } else { %><span class="badge ok">Paid</span><% } %>
       </li>
     <% }) %>
