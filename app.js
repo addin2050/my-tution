@@ -9,6 +9,7 @@ const { allSettings, dataDir } = require('./db');
 const SqliteStore = require('./lib/sessionStore');
 const { ensureDues } = require('./lib/fees');
 const dates = require('./lib/dates');
+const { fmtStudentNo } = require('./lib/studentId');
 
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
@@ -59,7 +60,8 @@ app.use((req, res, next) => {
     user: req.session.user || null,
     settings,
     fmtMoney,
-    className: (c) => `${c.grade}${c.division}`,
+    className: (c) => `Class ${c.grade}`,
+    sid: fmtStudentNo,
     ...dates,
     flash: req.session.flash,
     currentPath: req.path,

@@ -29,7 +29,7 @@ function loadReport(query) {
     .all(...params);
   const payments = db
     .prepare(
-      `SELECT p.id, p.receipt_no, p.amount, p.method, p.paid_on, s.id AS student_id, s.name, c.grade, c.division
+      `SELECT p.id, p.receipt_no, p.amount, p.method, p.paid_on, s.id AS student_id, s.student_no, s.name, c.grade, c.division
        ${base} WHERE ${where} ORDER BY p.paid_on DESC, p.id DESC`
     )
     .all(...params);

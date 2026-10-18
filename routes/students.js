@@ -34,18 +34,19 @@ function parseStudent(body) {
 router.get('/students', (req, res) => {
   ensureDues();
   const q = String(req.query.q || '').trim();
+  const term = q.replace(/^#/, '');
   const grade = parseGrade(req.query.grade);
   const show = req.query.show === 'all' ? 'all' : 'active';
   const month = monthOf(today());
   const rows = db
     .prepare(
-      `SELECT s.id, s.name, s.phone, s.status, c.grade, c.division,
+      `SELECT s.id, s.student_no, s.name, s.phone, s.status, c.grade, c.division,
               COALESCE((SELECT SUM(balance) FROM due_balance b WHERE b.student_id = s.id AND b.month <= ?), 0) AS pending
        FROM students s JOIN classes c ON c.id = s.class_id
-       WHERE (? = 'all' OR s.status = 'active') AND (? IS NULL OR c.grade = ?) AND (? = '' OR s.name LIKE '%' || ? || '%')
+       WHERE (? = 'all' OR s.status = 'active') AND (? IS NULL OR c.grade = ?) AND (? = '' OR s.name LIKE '%' || ? || '%' OR printf('%04d', s.student_no) LIKE '%' || ? || '%')
        ORDER BY c.grade, c.division, s.name`
     )
-    .all(month, show, grade, grade, q, q);
+    .all(month, show, grade, grade, term, term, term);
   res.render('students', { rows, grades: GRADES, q, grade, show });
 });
 
@@ -63,8 +64,8 @@ router.post('/students/new', (req, res) => {
   if (errors.length) return res.status(400).render('student_form', { student: values, classes: classes(), errors, isNew: true });
   const id = db
     .prepare(
-      `INSERT INTO students (name, guardian_name, phone, class_id, join_month, notes)
-       VALUES (@name, @guardian_name, @phone, @class_id, @join_month, @notes)`
+      `INSERT INTO students (student_no, name, guardian_name, phone, class_id, join_month, notes)
+       VALUES ((SELECT COALESCE(MAX(student_no), 0) + 1 FROM students), @name, @guardian_name, @phone, @class_id, @join_month, @notes)`
     )
     .run(values).lastInsertRowid;
   ensureDues(id);
@@ -125,18 +126,18 @@ router.post('/students/:id/edit', (req, res) => {
 
 // Used by the quick-collect search box.
 router.get('/api/students', (req, res) => {
-  const q = String(req.query.q || '').trim();
+  const term = String(req.query.q || '').trim().replace(/^#/, '');
   const grade = parseGrade(req.query.grade);
   const month = monthOf(today());
   const rows = db
     .prepare(
-      `SELECT s.id, s.name, c.grade, c.division,
+      `SELECT s.id, s.student_no, s.name, c.grade, c.division,
               COALESCE((SELECT SUM(balance) FROM due_balance b WHERE b.student_id = s.id AND b.month <= ?), 0) AS pending
        FROM students s JOIN classes c ON c.id = s.class_id
-       WHERE s.status = 'active' AND s.name LIKE '%' || ? || '%' AND (? IS NULL OR c.grade = ?)
+       WHERE s.status = 'active' AND (s.name LIKE '%' || ? || '%' OR printf('%04d', s.student_no) LIKE '%' || ? || '%') AND (? IS NULL OR c.grade = ?)
        ORDER BY s.name LIMIT 30`
     )
-    .all(month, q, grade, grade);
+    .all(month, term, term, grade, grade);
   res.json(rows);
 });
 

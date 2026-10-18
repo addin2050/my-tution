@@ -1,6 +1,6 @@
 <%- include('partials/head', {title: student.name}) %>
 <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
-  <h1><%= student.name %> <span class="badge">Class <%= student.grade %></span><% if (student.status !== 'active') { %> <span class="badge bad"><%= student.status %></span><% } %></h1>
+  <h1><%= student.name %> <span class="badge">#<%= sid(student.student_no) %></span> <span class="badge">Class <%= student.grade %></span><% if (student.status !== 'active') { %> <span class="badge bad"><%= student.status %></span><% } %></h1>
   <a class="btn sm secondary" href="/students/<%= student.id %>/edit">Edit</a>
 </div>
 
@@ -15,6 +15,7 @@
 <div class="card">
   <h2>Details</h2>
   <dl class="kv">
+    <dt>Student ID</dt><dd><%= sid(student.student_no) %></dd>
     <dt>Guardian</dt><dd><%= student.guardian_name || '—' %></dd>
     <dt>Phone</dt><dd><% if (student.phone) { %><a href="tel:<%= student.phone %>"><%= student.phone %></a><% } else { %>—<% } %></dd>
     <dt>Fees start</dt><dd><%= monthLabel(student.join_month) %></dd>

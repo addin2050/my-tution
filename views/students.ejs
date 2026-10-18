@@ -2,7 +2,7 @@
 <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem"><h1>Students</h1><a class="btn sm" href="/students/new">+ Add</a></div>
 <form class="card" method="get" action="/students">
   <div class="row two">
-    <div><label>Search name</label><input name="q" value="<%= q %>" placeholder="Student name"></div>
+    <div><label>Search</label><input name="q" value="<%= q %>" placeholder="Name or ID (e.g. 0007)"></div>
     <div><label>Class</label>
       <select name="grade" onchange="this.form.submit()">
         <option value="">All classes</option>
@@ -17,7 +17,7 @@
   <ul class="list">
     <% rows.forEach(s => { %>
       <li><div class="grow"><b><a href="/students/<%= s.id %>"><%= s.name %></a></b>
-        <span class="small muted">Class <%= s.grade %><%= s.status !== 'active' ? ' · ' + s.status : '' %></span></div>
+        <span class="small muted">#<%= sid(s.student_no) %> · Class <%= s.grade %><%= s.status !== 'active' ? ' · ' + s.status : '' %></span></div>
         <% if (s.pending > 0) { %><span class="badge warn"><%= fmtMoney(s.pending) %> due</span><% } else { %><span class="badge ok">Paid</span><% } %>
       </li>
     <% }) %>

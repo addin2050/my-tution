@@ -119,6 +119,17 @@ const DEFAULT_SETTINGS = {
 const insSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
 for (const [k, v] of Object.entries(DEFAULT_SETTINGS)) insSetting.run(k, v);
 
+// Student IDs: 4-digit numbers handed out in order. Older databases get theirs from the existing student order.
+if (!db.prepare("SELECT 1 FROM pragma_table_info('students') WHERE name = 'student_no'").get()) {
+  db.exec('ALTER TABLE students ADD COLUMN student_no INTEGER');
+}
+db.transaction(() => {
+  let next = db.prepare('SELECT COALESCE(MAX(student_no), 0) AS m FROM students').get().m;
+  const set = db.prepare('UPDATE students SET student_no = ? WHERE id = ?');
+  for (const s of db.prepare('SELECT id FROM students WHERE student_no IS NULL ORDER BY id').all()) set.run(++next, s.id);
+})();
+db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_students_no ON students(student_no)');
+
 // Older databases predate the ability to hide a class.
 if (!db.prepare("SELECT 1 FROM pragma_table_info('classes') WHERE name = 'active'").get()) {
   db.exec('ALTER TABLE classes ADD COLUMN active INTEGER NOT NULL DEFAULT 1');

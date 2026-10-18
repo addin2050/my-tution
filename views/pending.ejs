@@ -11,7 +11,7 @@
   <p><b><%= rows.length %></b> student<%= rows.length === 1 ? '' : 's' %> · <b><%= fmtMoney(total) %></b> pending</p>
   <ul class="list">
     <% rows.forEach(r => { %>
-      <li><div class="grow"><b><a href="/students/<%= r.id %>"><%= r.name %></a> <small class="muted">(Class <%= r.grade %>)</small></b>
+      <li><div class="grow"><b><a href="/students/<%= r.id %>"><%= r.name %></a> <small class="muted">(#<%= sid(r.student_no) %> · Class <%= r.grade %>)</small></b>
         <span class="small muted"><%= r.months %> month<%= r.months > 1 ? 's' : '' %> since <%= monthLabel(r.oldest) %></span></div>
         <b><%= fmtMoney(r.pending) %></b>
         <% if (r.wa) { %><a class="btn sm secondary" href="<%= r.wa %>" target="_blank" rel="noopener">Remind</a><% } %>

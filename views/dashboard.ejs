@@ -30,7 +30,7 @@
   <% if (!defaulters.length) { %><p class="muted">Nobody has pending fees. 🎉</p><% } %>
   <ul class="list">
     <% defaulters.forEach(d => { %>
-      <li><div class="grow"><b><a href="/students/<%= d.id %>"><%= d.name %></a></b><span class="small muted">Class <%= d.grade %> · <%= d.months %> month<%= d.months > 1 ? 's' : '' %></span></div>
+      <li><div class="grow"><b><a href="/students/<%= d.id %>"><%= d.name %></a></b><span class="small muted">#<%= sid(d.student_no) %> · Class <%= d.grade %> · <%= d.months %> month<%= d.months > 1 ? 's' : '' %></span></div>
       <b><%= fmtMoney(d.pending) %></b>
       <a class="btn sm secondary" href="/collect/<%= d.id %>">Collect</a></li>
     <% }) %>

@@ -83,7 +83,7 @@
   <div class="scroll"><table>
     <% payments.forEach(p => { %>
       <tr>
-        <td><a href="/students/<%= p.student_id %>"><%= p.name %></a><br><small class="muted">Class <%= p.grade %> · <%= p.method %></small></td>
+        <td><a href="/students/<%= p.student_id %>"><%= p.name %></a><br><small class="muted">#<%= sid(p.student_no) %> · Class <%= p.grade %> · <%= p.method %></small></td>
         <td class="nowrap"><small><%= fmtDate(p.paid_on) %></small><br><a class="small" href="/receipts/<%= p.id %>"><%= p.receipt_no %></a></td>
         <td class="num"><b><%= fmtMoney(p.amount) %></b></td>
       </tr>

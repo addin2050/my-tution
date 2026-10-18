@@ -38,7 +38,7 @@ router.get('/', (req, res) => {
 
   const defaulters = db
     .prepare(
-      `SELECT s.id, s.name, c.grade, c.division, SUM(b.balance) AS pending, COUNT(*) AS months
+      `SELECT s.id, s.student_no, s.name, c.grade, c.division, SUM(b.balance) AS pending, COUNT(*) AS months
        FROM due_balance b JOIN students s ON s.id = b.student_id JOIN classes c ON c.id = s.class_id
        WHERE b.month <= ? AND b.balance > 0 AND s.status = 'active'
        GROUP BY s.id ORDER BY pending DESC, months DESC LIMIT 5`

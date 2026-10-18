@@ -4,6 +4,7 @@
   <% } else { %><div class="flash">Payment recorded.</div><% } %>
   <h2><%= receipt.receipt_no %></h2>
   <dl class="kv">
+    <dt>Student ID</dt><dd><%= sid(receipt.student_no) %></dd>
     <dt>Student</dt><dd><a href="/students/<%= receipt.student_id %>"><%= receipt.student_name %></a> (Class <%= receipt.grade %>)</dd>
     <dt>Amount</dt><dd><b><%= fmtMoney(receipt.amount) %></b></dd>
     <dt>Date</dt><dd><%= fmtDate(receipt.paid_on) %></dd>

@@ -116,7 +116,7 @@ router.get('/pending', (req, res) => {
   const month = monthOf(today());
   const rows = db
     .prepare(
-      `SELECT s.id, s.name, s.guardian_name, s.phone, c.grade, c.division,
+      `SELECT s.id, s.student_no, s.name, s.guardian_name, s.phone, c.grade, c.division,
               SUM(b.balance) AS pending, COUNT(*) AS months, MIN(b.month) AS oldest
        FROM due_balance b JOIN students s ON s.id = b.student_id JOIN classes c ON c.id = s.class_id
        WHERE b.month <= ? AND b.balance > 0 AND s.status = 'active' AND (? IS NULL OR c.grade = ?)

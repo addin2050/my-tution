@@ -1,7 +1,7 @@
 <%- include('partials/head', {title: 'Collect fee'}) %>
 <h1>Collect fee</h1>
 <div class="card">
-  <label for="q">Search student</label>
+  <label for="q">Search student by name or ID</label>
   <input id="q" type="search" placeholder="Type a name…" autocomplete="off" autofocus>
   <label for="cls">Or filter by class</label>
   <select id="cls">
@@ -32,7 +32,7 @@
       const li = document.createElement('li');
       const a = document.createElement('a'); a.href = '/collect/' + s.id; a.className = 'grow'; a.style.color = 'inherit';
       const b = document.createElement('b'); b.textContent = s.name;
-      const sp = document.createElement('span'); sp.className = 'small muted'; sp.textContent = 'Class ' + s.grade;
+      const sp = document.createElement('span'); sp.className = 'small muted'; sp.textContent = '#' + String(s.student_no).padStart(4, '0') + ' \u00b7 Class ' + s.grade;
       a.append(b, sp);
       const badge = document.createElement('span');
       badge.className = 'badge ' + (s.pending > 0 ? 'warn' : 'ok');
