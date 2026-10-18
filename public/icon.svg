@@ -1,1 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#6d5ef0"/><path d="M256 120 96 200l160 80 160-80z" fill="#fff"/><path d="M160 250v80c0 30 44 56 96 56s96-26 96-56v-80l-96 48z" fill="#dbe4ff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Tuition center logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b7bff"/>
+      <stop offset="1" stop-color="#4a38c4"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <!-- graduation cap -->
+  <path d="M172 214v50c0 24 38 44 84 44s84-20 84-44v-50l-84 38z" fill="#d9ddff"/>
+  <path d="M256 96 400 164 256 232 112 164z" fill="#ffffff"/>
+  <path d="M392 168v78" stroke="#ffd166" stroke-width="11" stroke-linecap="round"/>
+  <circle cx="392" cy="256" r="15" fill="#ffd166"/>
+  <!-- open book -->
+  <path d="M256 360C216 336 164 334 118 346V446C164 434 216 436 256 460Z" fill="#ffffff"/>
+  <path d="M256 360C296 336 348 334 394 346V446C348 434 296 436 256 460Z" fill="#d9ddff"/>
+  <path d="M256 360V460" stroke="#4a38c4" stroke-width="7" stroke-linecap="round"/>
+</svg>

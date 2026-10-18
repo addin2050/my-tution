@@ -1,6 +1,7 @@
 <%- include('partials/head', {title: 'Welcome'}) %>
 <% const isAdmin = user.role === 'admin'; %>
 <section class="hero">
+  <img class="logo" src="/logo.svg" width="96" height="96" alt="">
   <p class="eyebrow"><%= new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %></p>
   <h1><%= settings.center_name %></h1>
   <% if (settings.tagline) { %><p class="tagline"><%= settings.tagline %></p><% } %>
