@@ -158,3 +158,7 @@ body.student-app { padding-bottom: 2rem; }
   .pin-card { break-inside: avoid; border: 1px solid #999 !important; background: #fff !important; box-shadow: none !important; color: #000 !important; }
   .pin-card .muted, .pin-card td, .pin-card th { color: #000 !important; }
 }
+
+.pre { white-space: pre-line; margin: .3rem 0; }
+.lesson .lesson-head { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.homework { margin-top: .6rem; padding: .6rem .8rem; border-left: 3px solid var(--warn); background: var(--warn-bg); border-radius: 0 10px 10px 0; }

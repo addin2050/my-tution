@@ -1,0 +1,49 @@
+<%- include('partials/head', {title: 'Lesson plans'}) %>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+  <h1>Lesson plans</h1>
+  <a class="btn sm" href="/lessons/new<%= classId ? '?class_id=' + classId : '' %>">+ New</a>
+</div>
+
+<div class="chips">
+  <% whenOptions.forEach(([key, label]) => { %>
+    <a class="chip <%= when === key ? 'on' : '' %>" href="/lessons?when=<%= key %><%= classId ? '&class_id=' + classId : '' %>"><%= label %></a>
+  <% }) %>
+</div>
+<form method="get" style="margin-bottom:1rem">
+  <input type="hidden" name="when" value="<%= when %>">
+  <select name="class_id" onchange="this.form.submit()" aria-label="Class">
+    <option value="">All classes</option>
+    <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>>Class <%= c.grade %></option><% }) %>
+  </select>
+</form>
+
+<% if (!rows.length) { %>
+  <div class="card"><p class="muted" style="margin:0">No lesson plans here yet. <a href="/lessons/new<%= classId ? '?class_id=' + classId : '' %>">Write one</a>.</p></div>
+<% } %>
+
+<% let lastDate = null; rows.forEach(r => { %>
+  <% if (r.plan_date !== lastDate) { lastDate = r.plan_date; %>
+    <p class="eyebrow" style="margin:1.1rem 0 .4rem"><%= new Date(r.plan_date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) %><%= r.plan_date === today() ? ' · Today' : '' %></p>
+  <% } %>
+  <div class="card lesson">
+    <div class="lesson-head">
+      <span class="badge">Class <%= r.grade %></span>
+      <% if (r.subject) { %><span class="badge ok"><%= r.subject %></span><% } %>
+      <% if (!r.visible) { %><span class="badge warn">Hidden from students</span><% } %>
+    </div>
+    <h2 style="margin:.5rem 0 .3rem"><%= r.title %></h2>
+    <% if (r.details) { %><p class="pre"><%= r.details %></p><% } %>
+    <% if (r.homework) { %><p class="pre"><b>Homework:</b> <%= r.homework %></p><% } %>
+    <% if (r.link) { %><p><a href="<%= r.link %>" target="_blank" rel="noopener noreferrer">Open resource ↗</a></p><% } %>
+    <p class="small muted" style="margin:.4rem 0 .6rem">By <%= r.author || 'unknown' %></p>
+    <div class="actions" style="gap:.4rem">
+      <a class="btn sm secondary" href="/lessons/<%= r.id %>/edit">Edit</a>
+      <a class="btn sm secondary" href="/lessons/new?copy=<%= r.id %>">Copy</a>
+      <% if (r.canDelete) { %>
+        <form method="post" action="/lessons/<%= r.id %>/delete" style="margin:0" onsubmit="return confirm('Delete this lesson plan?')">
+          <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm danger">Delete</button></form>
+      <% } %>
+    </div>
+  </div>
+<% }) %>
+<%- include('partials/foot') %>

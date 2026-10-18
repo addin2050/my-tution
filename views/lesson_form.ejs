@@ -1,0 +1,32 @@
+<%- include('partials/head', {title: isNew ? 'New lesson plan' : 'Edit lesson plan'}) %>
+<h1><%= isNew ? 'New lesson plan' : 'Edit lesson plan' %></h1>
+<% errors.forEach(e => { %><div class="error"><%= e %></div><% }) %>
+<form class="card" method="post">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="row two">
+    <div><label>Class *</label>
+      <select name="class_id" required>
+        <option value="">Select class</option>
+        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= Number(plan.class_id) === c.id ? 'selected' : '' %>>Class <%= c.grade %></option><% }) %>
+      </select></div>
+    <div><label>Date *</label><input type="date" name="plan_date" value="<%= plan.plan_date %>" required></div>
+  </div>
+  <div class="row two">
+    <div><label>Subject</label><input name="subject" list="subjects" maxlength="40" value="<%= plan.subject || '' %>" placeholder="e.g. Maths">
+      <datalist id="subjects"><% subjects.forEach(s => { %><option value="<%= s %>"><% }) %></datalist></div>
+    <div><label>Title *</label><input name="title" maxlength="120" value="<%= plan.title || '' %>" placeholder="e.g. Fractions: adding unlike denominators" required></div>
+  </div>
+  <label>What will be taught</label>
+  <textarea name="details" rows="6" maxlength="4000" placeholder="Topics, objectives, activities, what to bring…"><%= plan.details || '' %></textarea>
+  <label>Homework</label>
+  <textarea name="homework" rows="3" maxlength="2000" placeholder="Exercises or reading for students"><%= plan.homework || '' %></textarea>
+  <label>Link to a resource (optional)</label>
+  <input type="url" name="link" maxlength="500" value="<%= plan.link || '' %>" placeholder="https://…">
+  <label style="display:flex;gap:.5rem;align-items:center;color:var(--text);margin-top:1rem">
+    <input type="checkbox" name="visible" value="1" <%= plan.visible === 0 ? '' : 'checked' %> style="width:auto;min-height:0">
+    Show to students in the student app (untick to keep it as a draft)
+  </label>
+  <p><button class="btn block">Save lesson plan</button></p>
+  <p><a class="btn secondary block" href="/lessons">Cancel</a></p>
+</form>
+<%- include('partials/foot') %>

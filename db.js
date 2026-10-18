@@ -91,6 +91,22 @@ CREATE TABLE IF NOT EXISTS no_class (
   PRIMARY KEY (class_id, date)
 );
 
+CREATE TABLE IF NOT EXISTS lesson_plans (
+  id INTEGER PRIMARY KEY,
+  class_id INTEGER NOT NULL REFERENCES classes(id),
+  plan_date TEXT NOT NULL,
+  subject TEXT NOT NULL DEFAULT '',
+  title TEXT NOT NULL,
+  details TEXT NOT NULL DEFAULT '',
+  homework TEXT NOT NULL DEFAULT '',
+  link TEXT NOT NULL DEFAULT '',
+  visible INTEGER NOT NULL DEFAULT 1,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_lessons_class_date ON lesson_plans(class_id, plan_date);
+
 CREATE TABLE IF NOT EXISTS sessions (
   sid TEXT PRIMARY KEY,
   sess TEXT NOT NULL,

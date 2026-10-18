@@ -1,0 +1,25 @@
+<%- include('partials/s_head', {title: 'Lesson plans'}) %>
+<p><a href="/student">← Back</a></p>
+<h1>Lesson plans · Class <%= s.grade %></h1>
+
+<% const section = (title, items, empty) => { %>
+  <h2 class="eyebrow" style="margin:1.2rem 0 .5rem"><%= title %></h2>
+  <% if (!items.length) { %><div class="card"><p class="muted" style="margin:0"><%= empty %></p></div><% } %>
+  <% items.forEach(l => { %>
+    <div class="card lesson">
+      <div class="lesson-head">
+        <span class="small muted"><%= new Date(l.plan_date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) %></span>
+        <% if (l.subject) { %><span class="badge ok"><%= l.subject %></span><% } %>
+      </div>
+      <h2 style="margin:.4rem 0 .3rem"><%= l.title %></h2>
+      <% if (l.details) { %><p class="pre"><%= l.details %></p><% } %>
+      <% if (l.homework) { %><div class="homework"><b>Homework</b><p class="pre" style="margin:.2rem 0 0"><%= l.homework %></p></div><% } %>
+      <% if (l.link) { %><p style="margin:.6rem 0 0"><a href="<%= l.link %>" target="_blank" rel="noopener noreferrer">Open resource ↗</a></p><% } %>
+    </div>
+  <% }) %>
+<% }; %>
+
+<% section('Today', todayPlans, 'No lesson plan for today yet.'); %>
+<% section('Coming up', upcoming, 'Nothing planned in the next month.'); %>
+<% section('Earlier', earlier, 'No lessons in the last two weeks.'); %>
+<%- include('partials/s_foot') %>

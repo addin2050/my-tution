@@ -13,7 +13,8 @@
     <a class="<%= on('/attendance') %>" href="/attendance"><span class="ic">✓</span>Attendance</a>
     <a class="<%= on('/reports') %>" href="/reports"><span class="ic">▮</span>Reports</a>
   <% } else { %>
-    <a class="active" href="/attendance"><span class="ic">✓</span>Attendance</a>
+    <a class="<%= on('/attendance') %>" href="/attendance"><span class="ic">✓</span>Attendance</a>
+    <a class="<%= on('/lessons') %>" href="/lessons"><span class="ic">✎</span>Lessons</a>
   <% } %>
 </nav>
 <% } %>

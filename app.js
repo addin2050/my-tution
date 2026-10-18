@@ -75,6 +75,7 @@ app.use('/student', require('./routes/student')); // the student app has its own
 app.use(requireLogin);
 app.use(require('./routes/welcome'));
 app.use(require('./routes/attendance'));
+app.use(require('./routes/lessons')); // teachers write lesson plans too, so this sits before the admin-only pages
 app.use(requireAdmin);
 app.use(require('./routes/dashboard'));
 app.use(require('./routes/students'));

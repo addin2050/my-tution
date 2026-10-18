@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { db, getSetting } = require('../db');
-const { today, monthOf } = require('../lib/dates');
+const { today, monthOf, addDays } = require('../lib/dates');
 const { fmtStudentNo } = require('../lib/studentId');
 const { dailyCode, codeRequired, windowStatus } = require('../lib/checkin');
 
@@ -44,6 +44,15 @@ const requireStudent = (req, res, next) => {
   req.student = student;
   next();
 };
+
+// Visible lesson plans for the student's class between two dates (inclusive).
+const lessonsFor = (student, from, to, order = 'ASC') =>
+  db
+    .prepare(
+      `SELECT id, plan_date, subject, title, details, homework, link FROM lesson_plans
+       WHERE class_id = ? AND visible = 1 AND plan_date BETWEEN ? AND ? ORDER BY plan_date ${order}, subject, id`
+    )
+    .all(student.class_id, from, to);
 
 // What the student can do right now.
 function todayState(student) {
@@ -121,6 +130,18 @@ router.get('/', requireStudent, (req, res) => {
     percent: days ? Math.round(((counts.present + counts.late) / days) * 100) : null,
     recent: db.prepare('SELECT date, status, source FROM attendance WHERE student_id = ? ORDER BY date DESC LIMIT 14').all(s.id),
     studentNoLabel: fmtStudentNo(s.student_no),
+    todayLessons: lessonsFor(s, t, t),
+  });
+});
+
+router.get('/lessons', requireStudent, (req, res) => {
+  const s = req.student;
+  const t = today();
+  res.render('student_lessons', {
+    s,
+    todayPlans: lessonsFor(s, t, t),
+    upcoming: lessonsFor(s, addDays(t, 1), addDays(t, 30)),
+    earlier: lessonsFor(s, addDays(t, -14), addDays(t, -1), 'DESC'),
   });
 });
 

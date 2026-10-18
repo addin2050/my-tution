@@ -33,6 +33,17 @@
 </div>
 
 <div class="card">
+  <h2>Today's lessons</h2>
+  <% if (!todayLessons.length) { %><p class="muted" style="margin:0 0 .6rem">No lesson plan posted for today.</p><% } %>
+  <ul class="list">
+    <% todayLessons.forEach(l => { %>
+      <li><div class="grow"><b><%= l.title %></b><% if (l.subject) { %><span class="small muted"><%= l.subject %></span><% } %></div></li>
+    <% }) %>
+  </ul>
+  <a class="btn secondary block" href="/student/lessons" style="margin-top:.6rem">See all lesson plans &amp; homework</a>
+</div>
+
+<div class="card">
   <h2>This month</h2>
   <div class="stats" style="margin:0 0 .6rem;grid-template-columns:repeat(3,1fr)">
     <div class="stat ok"><div class="v"><%= counts.present %></div><div class="l">Present</div></div>
