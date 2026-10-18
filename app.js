@@ -96,4 +96,5 @@ ensureDues();
 setInterval(ensureDues, 6 * 3600 * 1000).unref();
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Tuition app listening on http://localhost:${port}`));
+const host = process.env.HOST || '127.0.0.1';
+app.listen(port, host, () => console.log(`Tuition app listening on http://${host}:${port}`));

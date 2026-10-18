@@ -22,7 +22,7 @@ On the first start an `admin` user is created and its password is printed in the
 
 Then open **Settings** to set the center name, address, billing start month and the fee per class.
 
-Environment variables: `PORT` (3000), `TZ` (Asia/Kolkata — "today" and report ranges use this), `DATA_DIR` (./data), `SESSION_SECRET` (auto-generated), `NODE_ENV=production`.
+Environment variables: `PORT` (3000), `HOST` (127.0.0.1), `TZ` (Asia/Kolkata — "today" and report ranges use this), `DB_PATH` (./data/tuition.db), `SESSION_SECRET` (auto-generated and stored next to the database), `NODE_ENV=production`.
 
 ## Deploy on Ubuntu
 ```

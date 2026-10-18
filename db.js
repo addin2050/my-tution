@@ -5,10 +5,12 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { today, monthOf } = require('./lib/dates');
 
-const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
+// DB_PATH points at the database file; DATA_DIR (legacy) points at a folder that holds tuition.db.
+const dbPath = process.env.DB_PATH || path.join(process.env.DATA_DIR || path.join(__dirname, 'data'), 'tuition.db');
+const dataDir = path.dirname(dbPath);
 fs.mkdirSync(dataDir, { recursive: true });
 
-const db = new Database(path.join(dataDir, 'tuition.db'));
+const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
