@@ -19,9 +19,12 @@
   <input type="hidden" name="_csrf" value="<%= csrf %>">
   <h2>Monthly fee per class</h2>
   <p class="small muted">Changes apply to months billed from now on. Fees already billed keep their original amount.</p>
-  <div class="row three">
-    <% classes.forEach(c => { %><div><label><%= c.grade %><%= c.division %></label><input type="number" min="0" step="1" inputmode="numeric" name="fee_<%= c.id %>" value="<%= c.monthly_fee %>"></div><% }) %>
-  </div>
+  <% [...new Set(classes.map(c => c.grade))].forEach(g => { %>
+    <h3 style="margin:1rem 0 0;font-size:.95rem">Class <%= g %></h3>
+    <div class="row" style="grid-template-columns:repeat(4,1fr)">
+      <% classes.filter(c => c.grade === g).forEach(c => { %><div><label><%= c.grade %><%= c.division %></label><input type="number" min="0" step="1" inputmode="numeric" name="fee_<%= c.id %>" value="<%= c.monthly_fee %>"></div><% }) %>
+    </div>
+  <% }) %>
   <p><button class="btn">Save fees</button></p>
 </form>
 
@@ -60,7 +63,7 @@
 <form class="card" method="post" action="/settings/promote" onsubmit="return confirm('Promote every active student to the next class?')">
   <input type="hidden" name="_csrf" value="<%= csrf %>">
   <h2>Year-end promotion</h2>
-  <p class="small muted">Moves 8→9 and 9→10 (same division) and marks grade 10 students as graduated. Do this once, at the start of the new year. Back up first.</p>
+  <p class="small muted">Moves every student up one class (1→2 … 9→10, same division) and marks grade 10 students as graduated. Do this once, at the start of the new year. Back up first.</p>
   <label>Type PROMOTE to confirm</label><input name="confirm" autocomplete="off">
   <p><button class="btn danger">Promote students</button></p>
 </form>

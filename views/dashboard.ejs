@@ -21,7 +21,7 @@
     <p class="muted">Not marked yet. <a href="/attendance">Mark attendance</a></p>
   <% } else { %>
     <p><span class="badge ok"><%= att.present %> present</span> <span class="badge warn"><%= att.late %> late</span> <span class="badge bad"><%= att.absent %> absent</span>
-    <span class="small muted">· <%= att.classesMarked %> of 12 classes marked</span></p>
+    <span class="small muted">· <%= att.classesMarked %> of <%= classCount %> classes marked</span></p>
   <% } %>
 </div>
 

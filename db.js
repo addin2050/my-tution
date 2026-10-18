@@ -119,10 +119,11 @@ const DEFAULT_SETTINGS = {
 const insSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
 for (const [k, v] of Object.entries(DEFAULT_SETTINGS)) insSetting.run(k, v);
 
-if (db.prepare('SELECT COUNT(*) AS n FROM classes').get().n === 0) {
-  const ins = db.prepare('INSERT INTO classes (grade, division) VALUES (?, ?)');
+// Classes 1-10, divisions A-D. Missing ones are added on every start; existing classes keep their fee.
+{
+  const ins = db.prepare('INSERT OR IGNORE INTO classes (grade, division) VALUES (?, ?)');
   db.transaction(() => {
-    for (const g of [8, 9, 10]) for (const d of ['A', 'B', 'C', 'D']) ins.run(g, d);
+    for (let g = 1; g <= 10; g++) for (const d of ['A', 'B', 'C', 'D']) ins.run(g, d);
   })();
 }
 

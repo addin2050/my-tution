@@ -53,7 +53,8 @@ router.get('/', (req, res) => {
     )
     .all();
 
-  res.render('dashboard', { stats, att, defaulters, recent, month });
+  const classCount = sum('SELECT COUNT(*) AS v FROM classes');
+  res.render('dashboard', { stats, att, defaulters, recent, month, classCount });
 });
 
 module.exports = router;

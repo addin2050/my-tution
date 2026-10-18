@@ -3,14 +3,14 @@
 Fee collection and attendance tracking for a tuition center. Node + Express + SQLite, mobile-first.
 
 ## Features
-- Classes 8A–10D (12 sections) with a fixed monthly fee per class
+- Classes 1A–10D (40 sections: grades 1–10, divisions A–D) with a fixed monthly fee per class
 - Monthly dues generated automatically; payments go to the oldest unpaid month first, extra amounts pay upcoming months in advance
 - Quick **Collect fee** flow, downloadable PDF receipts, WhatsApp receipt/reminder links
 - Student profile: pending amount, month-by-month status, past receipts, attendance
 - Attendance marking (everyone defaults to present, holiday flag), monthly summary
 - Reports with quick filters (Today, Yesterday, Last 7 days, Last 30 days, This month, Last month, Custom), class filter, CSV export
 - Admin + teacher logins (teachers see attendance only)
-- Void (not delete) receipts; year-end promotion 8→9→10→graduated
+- Void (not delete) receipts; year-end promotion 1→2→…→10→graduated
 
 ## Run locally
 ```

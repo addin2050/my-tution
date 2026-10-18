@@ -9,7 +9,7 @@
     <div><label>Class</label>
       <select name="class_id" onchange="this.form.submit()">
         <option value="">Select class</option>
-        <% [8, 9, 10].forEach(g => { %><optgroup label="Class <%= g %>">
+        <% [...new Set(classes.map(c => c.grade))].forEach(g => { %><optgroup label="Class <%= g %>">
           <% classes.filter(c => c.grade === g).forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
         </optgroup><% }) %>
       </select></div>

@@ -68,12 +68,12 @@ router.post('/settings/password', (req, res) => {
   back(req, res, 'Password changed.');
 });
 
-// Year-end: 8 -> 9, 9 -> 10, 10 -> graduated. Division is kept.
+// Year-end: every grade moves up one (1 -> 2 ... 9 -> 10) and grade 10 graduates. Division is kept.
 router.post('/settings/promote', (req, res) => {
   if (req.body.confirm !== 'PROMOTE') return back(req, res, 'Type PROMOTE to confirm.');
   db.transaction(() => {
     db.prepare("UPDATE students SET status = 'graduated' WHERE status = 'active' AND class_id IN (SELECT id FROM classes WHERE grade = 10)").run();
-    for (const g of [9, 8]) {
+    for (let g = 9; g >= 1; g--) {
       db.prepare(
         `UPDATE students SET class_id = (SELECT n.id FROM classes n JOIN classes o ON o.id = students.class_id
                                           WHERE n.grade = o.grade + 1 AND n.division = o.division)
