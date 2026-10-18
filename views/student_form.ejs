@@ -3,7 +3,11 @@
 <% errors.forEach(e => { %><div class="error"><%= e %></div><% }) %>
 <form class="card" method="post">
   <input type="hidden" name="_csrf" value="<%= csrf %>">
-  <label>Student name *</label><input name="name" value="<%= student.name || '' %>" required>
+  <div class="row two">
+    <div><label>Student name *</label><input name="name" value="<%= student.name || '' %>" required></div>
+    <div><label>Student ID</label><input name="student_no" inputmode="numeric" pattern="[0-9]*" maxlength="9" value="<%= studentNoField %>" placeholder="Automatic">
+      <span class="small muted">Assigned automatically. Change it only if the student already has an ID.</span></div>
+  </div>
   <div class="row two">
     <div><label>Class *</label>
       <select name="class_id" required>

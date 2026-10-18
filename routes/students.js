@@ -3,6 +3,7 @@ const { db } = require('../db');
 const { ensureDues, pendingDues, pendingTotal } = require('../lib/fees');
 const { today, monthOf, isMonth } = require('../lib/dates');
 const { GRADES, parseGrade } = require('../lib/grade');
+const { fmtStudentNo } = require('../lib/studentId');
 
 const router = express.Router();
 
@@ -10,16 +11,32 @@ const router = express.Router();
 const classes = (keepId = 0) =>
   db.prepare('SELECT * FROM classes WHERE active = 1 OR id = ? ORDER BY grade, division').all(keepId);
 
-function parseStudent(body) {
+const nextStudentNo = () => db.prepare('SELECT COALESCE(MAX(student_no), 0) + 1 AS n FROM students').get().n;
+
+// A blank Student ID means "assign the next number"; a typed one must be a positive number nobody else has.
+function parseStudent(body, excludeId = 0) {
   const cls = Number(body.class_id);
   const name = String(body.name || '').trim();
   const joinMonth = isMonth(body.join_month) ? body.join_month : monthOf(today());
   const errors = [];
   if (!name) errors.push('Name is required.');
   if (!db.prepare('SELECT 1 FROM classes WHERE id = ?').get(cls)) errors.push('Pick a class.');
+  const studentNoField = String(body.student_no ?? '').trim();
+  let studentNo = null;
+  if (studentNoField !== '') {
+    if (!/^\d{1,9}$/.test(studentNoField) || Number(studentNoField) < 1) {
+      errors.push('Student ID must be a number, like 0007.');
+    } else {
+      studentNo = Number(studentNoField);
+      const taken = db.prepare('SELECT name FROM students WHERE student_no = ? AND id != ?').get(studentNo, excludeId);
+      if (taken) errors.push(`Student ID ${fmtStudentNo(studentNo)} is already used by ${taken.name}.`);
+    }
+  }
   return {
     errors,
+    studentNoField,
     values: {
+      student_no: studentNo,
       name,
       guardian_name: String(body.guardian_name || '').trim(),
       phone: String(body.phone || '').replace(/[^\d+]/g, ''),
@@ -53,6 +70,7 @@ router.get('/students', (req, res) => {
 router.get('/students/new', (req, res) => {
   res.render('student_form', {
     student: { join_month: monthOf(today()), class_id: Number(req.query.class_id) || '' },
+    studentNoField: fmtStudentNo(nextStudentNo()),
     classes: classes(),
     errors: [],
     isNew: true,
@@ -60,12 +78,14 @@ router.get('/students/new', (req, res) => {
 });
 
 router.post('/students/new', (req, res) => {
-  const { errors, values } = parseStudent(req.body);
-  if (errors.length) return res.status(400).render('student_form', { student: values, classes: classes(), errors, isNew: true });
+  const { errors, values, studentNoField } = parseStudent(req.body);
+  if (errors.length) {
+    return res.status(400).render('student_form', { student: values, studentNoField, classes: classes(), errors, isNew: true });
+  }
   const id = db
     .prepare(
       `INSERT INTO students (student_no, name, guardian_name, phone, class_id, join_month, notes)
-       VALUES ((SELECT COALESCE(MAX(student_no), 0) + 1 FROM students), @name, @guardian_name, @phone, @class_id, @join_month, @notes)`
+       VALUES (COALESCE(@student_no, (SELECT COALESCE(MAX(student_no), 0) + 1 FROM students)), @name, @guardian_name, @phone, @class_id, @join_month, @notes)`
     )
     .run(values).lastInsertRowid;
   ensureDues(id);
@@ -105,18 +125,20 @@ router.get('/students/:id', (req, res) => {
 router.get('/students/:id/edit', (req, res) => {
   const student = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
   if (!student) return res.status(404).render('error', { message: 'Student not found.' });
-  res.render('student_form', { student, classes: classes(student.class_id), errors: [], isNew: false });
+  res.render('student_form', { student, studentNoField: fmtStudentNo(student.student_no), classes: classes(student.class_id), errors: [], isNew: false });
 });
 
 router.post('/students/:id/edit', (req, res) => {
   const existing = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).render('error', { message: 'Student not found.' });
-  const { errors, values } = parseStudent(req.body);
+  const { errors, values, studentNoField } = parseStudent(req.body, existing.id);
   if (errors.length) {
-    return res.status(400).render('student_form', { student: { ...values, id: existing.id }, classes: classes(existing.class_id), errors, isNew: false });
+    return res
+      .status(400)
+      .render('student_form', { student: { ...values, id: existing.id }, studentNoField, classes: classes(existing.class_id), errors, isNew: false });
   }
   db.prepare(
-    `UPDATE students SET name=@name, guardian_name=@guardian_name, phone=@phone, class_id=@class_id,
+    `UPDATE students SET student_no=COALESCE(@student_no, student_no), name=@name, guardian_name=@guardian_name, phone=@phone, class_id=@class_id,
      join_month=@join_month, notes=@notes, status=@status WHERE id=@id`
   ).run({ ...values, id: existing.id });
   ensureDues(existing.id);
