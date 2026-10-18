@@ -1,5 +1,6 @@
 // Adds (or removes) sample students, payments and attendance for trying the app out.
-//   node scripts/seed-sample.js            add samples (skips if already added)
+//   node scripts/seed-sample.js            add about 35 samples, 3-5 per class (skips if already added)
+//   node scripts/seed-sample.js --count 10 add exactly 10 samples, spread over the classes
 //   node scripts/seed-sample.js --remove   delete everything this script added
 // Uses the same database as the app (DB_PATH, default ./data/tuition.db). Sample students have notes = 'SAMPLE'.
 const { db } = require('../db');
@@ -47,16 +48,24 @@ const insStudent = db.prepare(
 const studentIds = [];
 let phone = 9000000000;
 let nameIdx = 0;
+// Which class each sample student goes to: --count N spreads N students round-robin, otherwise 3-5 per class.
+const countIdx = process.argv.indexOf('--count');
+const total = countIdx > 0 ? Number(process.argv[countIdx + 1]) : 0;
+if (countIdx > 0 && !(Number.isInteger(total) && total >= 1 && total <= 200)) {
+  console.log('Use --count with a whole number from 1 to 200, e.g. --count 10');
+  process.exit(1);
+}
+const plan = total
+  ? Array.from({ length: total }, (_, i) => classes[i % classes.length])
+  : classes.flatMap((c) => Array(3 + Math.floor(rand() * 3)).fill(c));
+
 db.transaction(() => {
-  for (const c of classes) {
-    const count = 3 + Math.floor(rand() * 3); // 3-5 per class
-    for (let i = 0; i < count; i++) {
-      const name = `${first[nameIdx++ % first.length]} ${pick(last)}`;
-      // Most joined at the start of the year; a few joined later this year.
-      const join = rand() < 0.8 ? start : `${month.slice(0, 5)}${String(Math.max(Number(month.slice(5)) - 1, 1)).padStart(2, '0')}`;
-      const id = insStudent.run(name, pick(guardians), String(++phone), c.id, join < start ? start : join, MARK).lastInsertRowid;
-      studentIds.push({ id, fee: c.monthly_fee });
-    }
+  for (const c of plan) {
+    const name = `${first[nameIdx++ % first.length]} ${pick(last)}`;
+    // Most joined at the start of the year; a few joined later this year.
+    const join = rand() < 0.8 ? start : `${month.slice(0, 5)}${String(Math.max(Number(month.slice(5)) - 1, 1)).padStart(2, '0')}`;
+    const id = insStudent.run(name, pick(guardians), String(++phone), c.id, join < start ? start : join, MARK).lastInsertRowid;
+    studentIds.push({ id, fee: c.monthly_fee });
   }
 })();
 ensureDues();
