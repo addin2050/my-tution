@@ -1,0 +1,51 @@
+<%- include('partials/head', {title: 'Welcome'}) %>
+<% const isAdmin = user.role === 'admin'; %>
+<section class="hero">
+  <p class="eyebrow"><%= new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+  <h1><%= settings.center_name %></h1>
+  <% if (settings.tagline) { %><p class="tagline"><%= settings.tagline %></p><% } %>
+</section>
+
+<div class="card">
+  <h2>About us</h2>
+  <% if (settings.about_text) { %>
+    <p class="about"><%= settings.about_text %></p>
+  <% } else { %>
+    <p class="about muted">Welcome to <%= settings.center_name %>.<% if (isAdmin) { %> Add a short description of your tuition center in <a href="/settings">Settings</a> and it will appear here.<% } %></p>
+  <% } %>
+</div>
+
+<% if (classes.length) { %>
+<div class="card">
+  <h2>Classes</h2>
+  <div class="tags">
+    <% classes.forEach(c => { %><span class="tag">Class <%= c.grade %></span><% }) %>
+  </div>
+</div>
+<% } %>
+
+<% if (settings.center_address || settings.center_phone) { %>
+<div class="card">
+  <h2>Contact</h2>
+  <dl class="kv" style="grid-template-columns:5.5rem 1fr">
+    <% if (settings.center_address) { %><dt>Address</dt><dd><%= settings.center_address %></dd><% } %>
+    <% if (settings.center_phone) { %><dt>Phone</dt><dd><a href="tel:<%= settings.center_phone.replace(/[^\d+]/g, '') %>"><%= settings.center_phone %></a></dd><% } %>
+  </dl>
+</div>
+<% } %>
+
+<div class="card">
+  <h2>Get started</h2>
+  <div class="actions">
+    <% if (isAdmin) { %>
+      <a class="btn" href="/">Dashboard</a>
+      <a class="btn secondary" href="/collect">Collect fee</a>
+      <a class="btn secondary" href="/attendance">Attendance</a>
+      <a class="btn secondary" href="/students">Students</a>
+      <a class="btn secondary" href="/reports">Reports</a>
+    <% } else { %>
+      <a class="btn" href="/attendance">Mark attendance</a>
+    <% } %>
+  </div>
+</div>
+<%- include('partials/foot') %>

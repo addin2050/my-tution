@@ -80,6 +80,7 @@ const requireAdmin = (req, res, next) => {
 
 app.use(require('./routes/auth'));
 app.use(requireLogin);
+app.use(require('./routes/welcome'));
 app.use(require('./routes/attendance'));
 app.use(requireAdmin);
 app.use(require('./routes/dashboard'));

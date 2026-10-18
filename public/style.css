@@ -130,3 +130,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   html, body { background: #fff !important; color: #000; }
   .topbar, .bottomnav, .noprint { display: none !important; }
 }
+
+.hero { text-align: center; padding: 1.6rem .5rem 1.2rem; }
+.hero .eyebrow { color: var(--accent); font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 .4rem; }
+.hero h1 { font-size: 2rem; margin: 0 0 .4rem; }
+.hero .tagline { color: var(--muted); font-size: 1.05rem; margin: 0; }
+.about { white-space: pre-line; margin: 0; }
+.tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+.tag { padding: .35rem .8rem; border-radius: 99px; background: rgba(139, 147, 255, .14); color: var(--accent); font-size: .9rem; font-weight: 600; }
+.actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+.actions .btn { flex: 1 1 9rem; }

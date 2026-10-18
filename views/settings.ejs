@@ -5,7 +5,9 @@
   <input type="hidden" name="_csrf" value="<%= csrf %>">
   <h2>Center</h2>
   <label>Center name</label><input name="center_name" value="<%= settings.center_name %>" required>
-  <label>Address (shown on receipts)</label><input name="center_address" value="<%= settings.center_address %>">
+  <label>Tagline (shown on the welcome page)</label><input name="tagline" maxlength="120" value="<%= settings.tagline %>" placeholder="e.g. Learn well. Grow strong.">
+  <label>About the center (shown on the welcome page)</label><textarea name="about_text" rows="4" maxlength="1500" placeholder="A few lines about your tuition center, its teachers and what students learn."><%= settings.about_text %></textarea>
+  <label>Address (shown on the welcome page and receipts)</label><input name="center_address" value="<%= settings.center_address %>">
   <div class="row three">
     <div><label>Phone</label><input name="center_phone" value="<%= settings.center_phone %>"></div>
     <div><label>Currency symbol</label><input name="currency" value="<%= settings.currency %>" maxlength="4"></div>

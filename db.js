@@ -112,6 +112,8 @@ const DEFAULT_SETTINGS = {
   center_name: 'Tuition Center',
   center_address: '',
   center_phone: '',
+  tagline: '',
+  about_text: '',
   currency: '₹',
   academic_start: `${monthOf(today()).slice(0, 4)}-04`,
   receipt_seq: '0',

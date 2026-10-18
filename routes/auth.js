@@ -18,7 +18,7 @@ const recordFailure = (ip) => {
 };
 
 router.get('/login', (req, res) => {
-  if (req.session.user) return res.redirect('/');
+  if (req.session.user) return res.redirect('/welcome');
   res.render('login', { error: null });
 });
 
@@ -35,7 +35,7 @@ router.post('/login', (req, res) => {
   req.session.regenerate((err) => {
     if (err) throw err;
     req.session.user = { id: user.id, username: user.username, role: user.role };
-    res.redirect(user.role === 'admin' ? '/' : '/attendance');
+    res.redirect('/welcome');
   });
 });
 

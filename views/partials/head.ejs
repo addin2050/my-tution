@@ -11,7 +11,7 @@
 <body>
 <% if (user) { %>
 <header class="topbar"><div class="in">
-  <a class="brand" href="<%= user.role === 'admin' ? '/' : '/attendance' %>"><%= settings.center_name %></a>
+  <a class="brand" href="/welcome"><%= settings.center_name %></a>
   <% if (user.role === 'admin') { %>
     <a class="tl" href="/pending">Pending</a>
     <a class="tl" href="/settings">Settings</a>

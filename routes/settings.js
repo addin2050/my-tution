@@ -27,6 +27,8 @@ router.post('/settings/center', (req, res) => {
   setSetting('center_name', center_name.trim());
   setSetting('center_address', String(center_address || '').trim());
   setSetting('center_phone', String(center_phone || '').trim());
+  setSetting('tagline', String(req.body.tagline || '').trim().slice(0, 120));
+  setSetting('about_text', String(req.body.about_text || '').trim().slice(0, 1500));
   setSetting('currency', String(currency || '₹').trim().slice(0, 4) || '₹');
   setSetting('academic_start', academic_start);
   ensureDues();
