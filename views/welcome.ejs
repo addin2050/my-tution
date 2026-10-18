@@ -16,15 +16,6 @@
   <% } %>
 </div>
 
-<% if (classes.length) { %>
-<div class="card">
-  <h2>Classes</h2>
-  <div class="tags">
-    <% classes.forEach(c => { %><span class="tag">Class <%= c.grade %></span><% }) %>
-  </div>
-</div>
-<% } %>
-
 <% if (settings.center_address || settings.center_phone) { %>
 <div class="card">
   <h2>Contact</h2>
