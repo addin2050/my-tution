@@ -2,15 +2,16 @@ const express = require('express');
 const { db, allSettings } = require('../db');
 const { csvBuffer, xlsxBuffer, pdfStream, fileStem } = require('../lib/reportExport');
 const { ensureDues } = require('../lib/fees');
-const { resolveRange, PRESETS, addDays, parse, fmt } = require('../lib/dates');
+const { resolveRange, PRESETS, addDays, parse } = require('../lib/dates');
+const { GRADES, parseGrade } = require('../lib/grade');
 
 const router = express.Router();
 
 function loadReport(query) {
   const range = resolveRange(query.range, query.from, query.to);
-  const classId = Number(query.class_id) || null;
-  const params = [range.from, range.to, classId, classId];
-  const where = `p.status = 'valid' AND p.paid_on BETWEEN ? AND ? AND (? IS NULL OR s.class_id = ?)`;
+  const grade = parseGrade(query.grade);
+  const params = [range.from, range.to, grade, grade];
+  const where = `p.status = 'valid' AND p.paid_on BETWEEN ? AND ? AND (? IS NULL OR c.grade = ?)`;
   const base = 'FROM payments p JOIN students s ON s.id = p.student_id JOIN classes c ON c.id = s.class_id';
 
   const totals = db.prepare(`SELECT COALESCE(SUM(p.amount),0) AS total, COUNT(*) AS count ${base} WHERE ${where}`).get(...params);
@@ -35,7 +36,7 @@ function loadReport(query) {
   const voided = db
     .prepare(
       `SELECT COUNT(*) AS count, COALESCE(SUM(p.amount),0) AS total ${base}
-       WHERE p.status = 'void' AND p.paid_on BETWEEN ? AND ? AND (? IS NULL OR s.class_id = ?)`
+       WHERE p.status = 'void' AND p.paid_on BETWEEN ? AND ? AND (? IS NULL OR c.grade = ?)`
     )
     .get(...params);
 
@@ -49,14 +50,13 @@ function loadReport(query) {
     for (const d of daily.sort((a, b) => a.day.localeCompare(b.day))) series.push({ day: d.day, total: d.total });
   }
 
-  return { range, classId, totals, byMethod, byClass, series, payments, voided };
+  return { range, grade, totals, byMethod, byClass, series, payments, voided };
 }
 
 router.get('/reports', (req, res) => {
   ensureDues();
-  const classes = db.prepare('SELECT * FROM classes ORDER BY grade, division').all();
   const report = loadReport(req.query);
-  res.render('reports', { ...report, classes, presets: PRESETS, maxDay: Math.max(1, ...report.series.map((s) => s.total)) });
+  res.render('reports', { ...report, grades: GRADES, presets: PRESETS, maxDay: Math.max(1, ...report.series.map((s) => s.total)) });
 });
 
 const EXPORT_TYPES = {
@@ -70,8 +70,7 @@ router.get('/reports/export.:format', async (req, res, next) => {
   if (!type) return next();
   const report = loadReport(req.query);
   const settings = allSettings();
-  const cls = report.classId && db.prepare('SELECT grade, division FROM classes WHERE id = ?').get(report.classId);
-  const classLabel = cls ? `${cls.grade}${cls.division}` : 'All classes';
+  const classLabel = report.grade ? `Class ${report.grade}` : 'All classes';
   res.set({
     'Content-Type': type,
     'Content-Disposition': `attachment; filename="${fileStem(report.range)}.${req.params.format}"`,

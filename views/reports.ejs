@@ -1,8 +1,8 @@
 <%- include('partials/head', {title: 'Reports'}) %>
 <%
   const qs = (o) => new URLSearchParams(Object.entries(o).filter(([, v]) => v !== null && v !== '' && v !== undefined)).toString();
-  const keep = { class_id: classId };
-  const exportQs = qs({ range: range.key, from: range.from, to: range.to, class_id: classId });
+  const keep = { grade };
+  const exportQs = qs({ range: range.key, from: range.from, to: range.to, grade });
 %>
 <h1>Reports</h1>
 
@@ -22,8 +22,8 @@
     <div><label>From</label><input type="date" name="from" value="<%= range.from %>" required></div>
     <div><label>To</label><input type="date" name="to" value="<%= range.to %>" required></div>
     <div><label>Class</label>
-      <select name="class_id"><option value="">All</option>
-        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %></select></div>
+      <select name="grade"><option value="">All</option>
+        <% grades.forEach(g => { %><option value="<%= g %>" <%= grade === g ? 'selected' : '' %>>Class <%= g %></option><% }) %></select></div>
   </div>
   <p><button class="btn sm">Apply</button></p>
 </form>
@@ -31,9 +31,9 @@
 <% if (range.key !== 'custom') { %>
 <form method="get" style="margin-bottom:1rem">
   <input type="hidden" name="range" value="<%= range.key %>">
-  <select name="class_id" onchange="this.form.submit()" aria-label="Class">
+  <select name="grade" onchange="this.form.submit()" aria-label="Class">
     <option value="">All classes</option>
-    <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+    <% grades.forEach(g => { %><option value="<%= g %>" <%= grade === g ? 'selected' : '' %>>Class <%= g %></option><% }) %>
   </select>
 </form>
 <% } %>

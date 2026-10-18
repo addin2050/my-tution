@@ -1,12 +1,12 @@
 <%- include('partials/head', {title: 'Students'}) %>
-<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem"><h1>Students</h1><a class="btn sm" href="/students/new<%= classId ? '?class_id=' + classId : '' %>">+ Add</a></div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem"><h1>Students</h1><a class="btn sm" href="/students/new">+ Add</a></div>
 <form class="card" method="get" action="/students">
   <div class="row two">
     <div><label>Search name</label><input name="q" value="<%= q %>" placeholder="Student name"></div>
     <div><label>Class</label>
-      <select name="class_id" onchange="this.form.submit()">
+      <select name="grade" onchange="this.form.submit()">
         <option value="">All classes</option>
-        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+        <% grades.forEach(g => { %><option value="<%= g %>" <%= grade === g ? 'selected' : '' %>>Class <%= g %></option><% }) %>
       </select></div>
   </div>
   <label><input type="checkbox" name="show" value="all" <%= show === 'all' ? 'checked' : '' %> onchange="this.form.submit()" style="width:auto;min-height:0"> Include left / graduated</label>

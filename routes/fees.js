@@ -3,6 +3,7 @@ const { db, allSettings } = require('../db');
 const { ensureDues, pendingDues, pendingTotal, collectPayment, voidPayment, getReceipt } = require('../lib/fees');
 const { buildReceiptPdf } = require('../lib/receiptPdf');
 const { today, monthOf, isDate, monthLabel } = require('../lib/dates');
+const { GRADES, parseGrade } = require('../lib/grade');
 
 const router = express.Router();
 const METHODS = ['Cash', 'UPI', 'Card', 'Bank transfer', 'Cheque'];
@@ -16,8 +17,7 @@ function whatsappLink(phone, text) {
 }
 
 router.get('/collect', (req, res) => {
-  const classes = db.prepare('SELECT * FROM classes ORDER BY grade, division').all();
-  res.render('collect_search', { classes });
+  res.render('collect_search', { grades: GRADES });
 });
 
 router.get('/collect/:studentId', (req, res) => {
@@ -112,17 +112,17 @@ router.post('/receipts/:id/void', (req, res) => {
 // Everyone with an outstanding balance, with a one-tap WhatsApp reminder.
 router.get('/pending', (req, res) => {
   ensureDues();
-  const classId = Number(req.query.class_id) || null;
+  const grade = parseGrade(req.query.grade);
   const month = monthOf(today());
   const rows = db
     .prepare(
       `SELECT s.id, s.name, s.guardian_name, s.phone, c.grade, c.division,
               SUM(b.balance) AS pending, COUNT(*) AS months, MIN(b.month) AS oldest
        FROM due_balance b JOIN students s ON s.id = b.student_id JOIN classes c ON c.id = s.class_id
-       WHERE b.month <= ? AND b.balance > 0 AND s.status = 'active' AND (? IS NULL OR s.class_id = ?)
+       WHERE b.month <= ? AND b.balance > 0 AND s.status = 'active' AND (? IS NULL OR c.grade = ?)
        GROUP BY s.id ORDER BY c.grade, c.division, s.name`
     )
-    .all(month, classId, classId);
+    .all(month, grade, grade);
   const { settings, fmtMoney } = res.locals;
   for (const r of rows) {
     r.wa = whatsappLink(
@@ -131,8 +131,7 @@ router.get('/pending', (req, res) => {
     );
   }
   const total = rows.reduce((s, r) => s + r.pending, 0);
-  const classes = db.prepare('SELECT * FROM classes ORDER BY grade, division').all();
-  res.render('pending', { rows, total, classes, classId });
+  res.render('pending', { rows, total, grades: GRADES, grade });
 });
 
 module.exports = router;

@@ -2,6 +2,7 @@ const express = require('express');
 const { db } = require('../db');
 const { ensureDues, pendingDues, pendingTotal } = require('../lib/fees');
 const { today, monthOf, isMonth } = require('../lib/dates');
+const { GRADES, parseGrade } = require('../lib/grade');
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ function parseStudent(body) {
 router.get('/students', (req, res) => {
   ensureDues();
   const q = String(req.query.q || '').trim();
-  const classId = Number(req.query.class_id) || null;
+  const grade = parseGrade(req.query.grade);
   const show = req.query.show === 'all' ? 'all' : 'active';
   const month = monthOf(today());
   const rows = db
@@ -39,11 +40,11 @@ router.get('/students', (req, res) => {
       `SELECT s.id, s.name, s.phone, s.status, c.grade, c.division,
               COALESCE((SELECT SUM(balance) FROM due_balance b WHERE b.student_id = s.id AND b.month <= ?), 0) AS pending
        FROM students s JOIN classes c ON c.id = s.class_id
-       WHERE (? = 'all' OR s.status = 'active') AND (? IS NULL OR s.class_id = ?) AND (? = '' OR s.name LIKE '%' || ? || '%')
+       WHERE (? = 'all' OR s.status = 'active') AND (? IS NULL OR c.grade = ?) AND (? = '' OR s.name LIKE '%' || ? || '%')
        ORDER BY c.grade, c.division, s.name`
     )
-    .all(month, show, classId, classId, q, q);
-  res.render('students', { rows, classes: classes(), q, classId, show });
+    .all(month, show, grade, grade, q, q);
+  res.render('students', { rows, grades: GRADES, q, grade, show });
 });
 
 router.get('/students/new', (req, res) => {
@@ -123,17 +124,17 @@ router.post('/students/:id/edit', (req, res) => {
 // Used by the quick-collect search box.
 router.get('/api/students', (req, res) => {
   const q = String(req.query.q || '').trim();
-  const classId = Number(req.query.class_id) || null;
+  const grade = parseGrade(req.query.grade);
   const month = monthOf(today());
   const rows = db
     .prepare(
       `SELECT s.id, s.name, c.grade, c.division,
               COALESCE((SELECT SUM(balance) FROM due_balance b WHERE b.student_id = s.id AND b.month <= ?), 0) AS pending
        FROM students s JOIN classes c ON c.id = s.class_id
-       WHERE s.status = 'active' AND s.name LIKE '%' || ? || '%' AND (? IS NULL OR s.class_id = ?)
+       WHERE s.status = 'active' AND s.name LIKE '%' || ? || '%' AND (? IS NULL OR c.grade = ?)
        ORDER BY s.name LIMIT 30`
     )
-    .all(month, q, classId, classId);
+    .all(month, q, grade, grade);
   res.json(rows);
 });
 

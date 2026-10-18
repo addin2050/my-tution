@@ -6,7 +6,7 @@
   <label for="cls">Or filter by class</label>
   <select id="cls">
     <option value="">All classes</option>
-    <% classes.forEach(c => { %><option value="<%= c.id %>"><%= c.grade %><%= c.division %></option><% }) %>
+    <% grades.forEach(g => { %><option value="<%= g %>">Class <%= g %></option><% }) %>
   </select>
   <ul class="list" id="results" style="margin-top:.8rem"></ul>
   <p class="muted small" id="hint">Start typing a name or pick a class.</p>
@@ -22,7 +22,7 @@
     const my = ++seq;
     const term = q.value.trim();
     if (!term && !cls.value) { out.textContent = ''; hint.hidden = false; hint.textContent = 'Start typing a name or pick a class.'; return; }
-    const res = await fetch('/api/students?q=' + encodeURIComponent(term) + '&class_id=' + encodeURIComponent(cls.value));
+    const res = await fetch('/api/students?q=' + encodeURIComponent(term) + '&grade=' + encodeURIComponent(cls.value));
     const rows = await res.json();
     if (my !== seq) return;
     out.textContent = '';

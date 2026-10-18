@@ -2,9 +2,9 @@
 <h1>Pending fees</h1>
 <form class="card" method="get">
   <label>Class</label>
-  <select name="class_id" onchange="this.form.submit()">
+  <select name="grade" onchange="this.form.submit()">
     <option value="">All classes</option>
-    <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+    <% grades.forEach(g => { %><option value="<%= g %>" <%= grade === g ? 'selected' : '' %>>Class <%= g %></option><% }) %>
   </select>
 </form>
 <div class="card">
