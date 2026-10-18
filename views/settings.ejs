@@ -17,15 +17,16 @@
 
 <form class="card" method="post" action="/settings/fees">
   <input type="hidden" name="_csrf" value="<%= csrf %>">
-  <h2>Monthly fee per class</h2>
-  <p class="small muted">Changes apply to months billed from now on. Fees already billed keep their original amount.</p>
+  <h2>Classes and monthly fees</h2>
+  <p class="small muted">Untick <b>Show</b> to hide a division you don't use. It disappears from every dropdown and list. A class with active students can't be hidden. Fee changes apply to months billed from now on; fees already billed keep their original amount.</p>
   <% [...new Set(classes.map(c => c.grade))].forEach(g => { %>
     <h3 style="margin:1rem 0 0;font-size:.95rem">Class <%= g %></h3>
     <div class="row" style="grid-template-columns:repeat(4,1fr)">
-      <% classes.filter(c => c.grade === g).forEach(c => { %><div><label><%= c.grade %><%= c.division %></label><input type="number" min="0" step="1" inputmode="numeric" name="fee_<%= c.id %>" value="<%= c.monthly_fee %>"></div><% }) %>
+      <% classes.filter(c => c.grade === g).forEach(c => { %><div><label><%= c.grade %><%= c.division %></label><input type="number" min="0" step="1" inputmode="numeric" name="fee_<%= c.id %>" value="<%= c.monthly_fee %>">
+        <label style="display:flex;gap:.4rem;align-items:center;margin:.3rem 0 0;color:var(--text)"><input type="checkbox" name="show_<%= c.id %>" value="1" <%= c.active ? 'checked' : '' %> style="width:auto;min-height:0"> Show</label></div><% }) %>
     </div>
   <% }) %>
-  <p><button class="btn">Save fees</button></p>
+  <p><button class="btn">Save classes &amp; fees</button></p>
 </form>
 
 <div class="card">

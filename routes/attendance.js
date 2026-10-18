@@ -5,7 +5,7 @@ const { today, isDate, monthOf } = require('../lib/dates');
 const router = express.Router();
 const STATUSES = ['present', 'absent', 'late'];
 
-const classes = () => db.prepare('SELECT * FROM classes ORDER BY grade, division').all();
+const classes = () => db.prepare('SELECT * FROM classes WHERE active = 1 ORDER BY grade, division').all();
 
 router.get('/attendance', (req, res) => {
   const date = isDate(req.query.date) ? req.query.date : today();

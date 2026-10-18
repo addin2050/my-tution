@@ -6,7 +6,9 @@ const { GRADES, parseGrade } = require('../lib/grade');
 
 const router = express.Router();
 
-const classes = () => db.prepare('SELECT * FROM classes ORDER BY grade, division').all();
+// Classes offered in dropdowns: the visible ones, plus the student's current class even if it was hidden later.
+const classes = (keepId = 0) =>
+  db.prepare('SELECT * FROM classes WHERE active = 1 OR id = ? ORDER BY grade, division').all(keepId);
 
 function parseStudent(body) {
   const cls = Number(body.class_id);
@@ -102,7 +104,7 @@ router.get('/students/:id', (req, res) => {
 router.get('/students/:id/edit', (req, res) => {
   const student = db.prepare('SELECT * FROM students WHERE id = ?').get(req.params.id);
   if (!student) return res.status(404).render('error', { message: 'Student not found.' });
-  res.render('student_form', { student, classes: classes(), errors: [], isNew: false });
+  res.render('student_form', { student, classes: classes(student.class_id), errors: [], isNew: false });
 });
 
 router.post('/students/:id/edit', (req, res) => {
@@ -110,7 +112,7 @@ router.post('/students/:id/edit', (req, res) => {
   if (!existing) return res.status(404).render('error', { message: 'Student not found.' });
   const { errors, values } = parseStudent(req.body);
   if (errors.length) {
-    return res.status(400).render('student_form', { student: { ...values, id: existing.id }, classes: classes(), errors, isNew: false });
+    return res.status(400).render('student_form', { student: { ...values, id: existing.id }, classes: classes(existing.class_id), errors, isNew: false });
   }
   db.prepare(
     `UPDATE students SET name=@name, guardian_name=@guardian_name, phone=@phone, class_id=@class_id,

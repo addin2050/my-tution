@@ -53,7 +53,7 @@ router.get('/', (req, res) => {
     )
     .all();
 
-  const classCount = sum('SELECT COUNT(*) AS v FROM classes');
+  const classCount = sum('SELECT COUNT(*) AS v FROM classes WHERE active = 1');
   res.render('dashboard', { stats, att, defaulters, recent, month, classCount });
 });
 

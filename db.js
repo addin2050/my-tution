@@ -119,6 +119,11 @@ const DEFAULT_SETTINGS = {
 const insSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
 for (const [k, v] of Object.entries(DEFAULT_SETTINGS)) insSetting.run(k, v);
 
+// Older databases predate the ability to hide a class.
+if (!db.prepare("SELECT 1 FROM pragma_table_info('classes') WHERE name = 'active'").get()) {
+  db.exec('ALTER TABLE classes ADD COLUMN active INTEGER NOT NULL DEFAULT 1');
+}
+
 // Classes 1-10, divisions A-D. Missing ones are added on every start; existing classes keep their fee.
 {
   const ins = db.prepare('INSERT OR IGNORE INTO classes (grade, division) VALUES (?, ?)');

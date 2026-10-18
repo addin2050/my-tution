@@ -36,13 +36,25 @@ router.post('/settings/center', (req, res) => {
 // Fee changes apply to months billed from now on; existing dues keep the amount they were created with.
 router.post('/settings/fees', (req, res) => {
   const upd = db.prepare('UPDATE classes SET monthly_fee = ? WHERE id = ?');
+  const setActive = db.prepare('UPDATE classes SET active = ? WHERE id = ?');
+  const students = db.prepare("SELECT COUNT(*) AS n FROM students WHERE class_id = ? AND status = 'active'");
+  const kept = [];
   db.transaction(() => {
-    for (const c of db.prepare('SELECT id FROM classes').all()) {
+    for (const c of db.prepare('SELECT id, grade, division FROM classes').all()) {
       const fee = Number(req.body[`fee_${c.id}`]);
       if (Number.isInteger(fee) && fee >= 0) upd.run(fee, c.id);
+      const wantShown = req.body[`show_${c.id}`] === '1';
+      if (!wantShown && students.get(c.id).n > 0) kept.push(`${c.grade}${c.division}`);
+      else setActive.run(wantShown ? 1 : 0, c.id);
     }
   })();
-  back(req, res, 'Class fees updated. They apply to months billed from now on.');
+  back(
+    req,
+    res,
+    kept.length
+      ? `Saved. ${kept.join(', ')} still ha${kept.length > 1 ? 've' : 's'} active students, so ${kept.length > 1 ? 'they stay' : 'it stays'} visible.`
+      : 'Saved. Fees apply to months billed from now on.'
+  );
 });
 
 router.post('/settings/teachers', (req, res) => {
@@ -81,6 +93,8 @@ router.post('/settings/promote', (req, res) => {
       ).run(g);
     }
   })();
+  // A promoted student must never end up in a hidden class.
+  db.prepare("UPDATE classes SET active = 1 WHERE active = 0 AND id IN (SELECT class_id FROM students WHERE status = 'active')").run();
   ensureDues();
   back(req, res, 'Students promoted. Grade 10 students are now marked graduated.');
 });
