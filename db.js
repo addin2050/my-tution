@@ -114,6 +114,9 @@ const DEFAULT_SETTINGS = {
   center_phone: '',
   tagline: '',
   about_text: '',
+  checkin_code_required: '0',
+  checkin_start: '',
+  checkin_end: '',
   currency: '₹',
   academic_start: `${monthOf(today()).slice(0, 4)}-04`,
   receipt_seq: '0',
@@ -131,6 +134,12 @@ db.transaction(() => {
   for (const s of db.prepare('SELECT id FROM students WHERE student_no IS NULL ORDER BY id').all()) set.run(++next, s.id);
 })();
 db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_students_no ON students(student_no)');
+
+// Student app: each student gets a hashed 4-digit PIN, and attendance remembers who marked it and when.
+const hasColumn = (table, column) => !!db.prepare(`SELECT 1 FROM pragma_table_info('${table}') WHERE name = ?`).get(column);
+if (!hasColumn('students', 'pin_hash')) db.exec('ALTER TABLE students ADD COLUMN pin_hash TEXT');
+if (!hasColumn('attendance', 'source')) db.exec("ALTER TABLE attendance ADD COLUMN source TEXT NOT NULL DEFAULT 'teacher'");
+if (!hasColumn('attendance', 'marked_at')) db.exec('ALTER TABLE attendance ADD COLUMN marked_at TEXT');
 
 // Older databases predate the ability to hide a class.
 if (!db.prepare("SELECT 1 FROM pragma_table_info('classes') WHERE name = 'active'").get()) {

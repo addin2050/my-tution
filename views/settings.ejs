@@ -29,6 +29,28 @@
 </form>
 
 <div class="card">
+  <h2>Student attendance app</h2>
+  <p class="small muted">Students open <b><%= appUrl %></b> on their phone, sign in with their Student ID and a 4-digit PIN, and tap <b>I'm present</b>. Teachers can still change any entry on the Attendance page. Tip: add the page to the phone's home screen.</p>
+  <form method="post" action="/settings/checkin">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label style="display:flex;gap:.5rem;align-items:center;color:var(--text)">
+      <input type="checkbox" name="checkin_code_required" value="1" <%= settings.checkin_code_required === '1' ? 'checked' : '' %> style="width:auto;min-height:0">
+      Ask for today's code (the teacher reads it on the Attendance page) so students can't check in from home
+    </label>
+    <div class="row two">
+      <div><label>Check-in opens at (optional)</label><input type="time" name="checkin_start" value="<%= settings.checkin_start %>"></div>
+      <div><label>Check-in closes at (optional)</label><input type="time" name="checkin_end" value="<%= settings.checkin_end %>"></div>
+    </div>
+    <p><button class="btn secondary">Save check-in rules</button></p>
+  </form>
+  <form method="post" action="/settings/pins" onsubmit="return confirm('Create PINs for every student who does not have one? They are shown once, so be ready to print or save the list.')">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <p class="small muted" style="margin-bottom:.5rem"><b><%= withoutPin %></b> active student<%= withoutPin === 1 ? ' has' : 's have' %> no PIN yet. You can also create a single PIN on a student's profile.</p>
+    <button class="btn" <%= withoutPin ? '' : 'disabled' %>>Create PINs for students without one</button>
+  </form>
+</div>
+
+<div class="card">
   <h2>Teacher logins</h2>
   <p class="small muted">Teachers can only mark attendance. They cannot see fees.</p>
   <ul class="list">

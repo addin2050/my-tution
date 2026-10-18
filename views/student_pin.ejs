@@ -1,0 +1,11 @@
+<%- include('partials/head', {title: 'Student PIN'}) %>
+<div class="card pin-card">
+  <h1>Student app PIN</h1>
+  <p><b><%= student.name %></b> · Student ID <b><%= sid(student.student_no) %></b></p>
+  <div class="pin-big"><%= pin %></div>
+  <div class="error">This PIN is shown only once. Write it down or share it with the guardian now. If it is lost, make a new one.</div>
+  <p class="small muted">The student opens <b><%= appUrl %></b> on their phone and signs in with their Student ID (<%= sid(student.student_no) %>) and this PIN.</p>
+  <p class="noprint"><a class="btn block" href="/students/<%= student.id %>">Done</a></p>
+  <p class="noprint"><button class="btn secondary block" onclick="window.print()">Print</button></p>
+</div>
+<%- include('partials/foot') %>

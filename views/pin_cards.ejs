@@ -1,0 +1,20 @@
+<%- include('partials/head', {title: 'Student PINs'}) %>
+<h1>Student PINs</h1>
+<% if (!rows.length) { %>
+  <div class="card"><p class="muted">Every active student already has a PIN.</p><a class="btn secondary" href="/settings">Back to settings</a></div>
+<% } else { %>
+<div class="error noprint"><b>These PINs are shown only once.</b> Print this page or save it now. They are stored scrambled and cannot be shown again; a lost PIN needs a reset on the student's profile.</div>
+<div class="card pin-card">
+  <p>Students open <b><%= appUrl %></b> and sign in with their Student ID and PIN.</p>
+  <div class="scroll"><table>
+    <tr><th>ID</th><th>Name</th><th>Class</th><th class="num">PIN</th></tr>
+    <% rows.forEach(r => { %>
+      <tr><td><%= sid(r.student_no) %></td><td><%= r.name %></td><td>Class <%= r.grade %></td><td class="num"><b><%= r.pin %></b></td></tr>
+    <% }) %>
+  </table></div>
+  <p class="small muted"><%= rows.length %> PIN<%= rows.length === 1 ? '' : 's' %> created.</p>
+</div>
+<p class="noprint"><button class="btn block" onclick="window.print()">Print this list</button></p>
+<p class="noprint"><a class="btn secondary block" href="/settings">Back to settings</a></p>
+<% } %>
+<%- include('partials/foot') %>

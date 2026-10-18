@@ -1,7 +1,9 @@
 const express = require('express');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { db, setSetting } = require('../db');
 const { isMonth } = require('../lib/dates');
+const { isTime } = require('../lib/checkin');
 const { ensureDues } = require('../lib/fees');
 
 const router = express.Router();
@@ -10,6 +12,8 @@ const render = (res, extra = {}) =>
   res.render('settings', {
     classes: db.prepare('SELECT * FROM classes ORDER BY grade, division').all(),
     users: db.prepare('SELECT id, username, role FROM users ORDER BY role, username').all(),
+    appUrl: `${res.req.protocol}://${res.req.get('host')}/student`,
+    withoutPin: db.prepare("SELECT COUNT(*) AS n FROM students WHERE status = 'active' AND pin_hash IS NULL").get().n,
     ...extra,
   });
 
@@ -57,6 +61,37 @@ router.post('/settings/fees', (req, res) => {
       ? `Saved. ${kept.join(', ')} still ha${kept.length > 1 ? 've' : 's'} active students, so ${kept.length > 1 ? 'they stay' : 'it stays'} visible.`
       : 'Saved. Fees apply to months billed from now on.'
   );
+});
+
+// Rules for the student app. Everything is optional; the defaults let any signed-in student check in.
+router.post('/settings/checkin', (req, res) => {
+  const start = String(req.body.checkin_start || '');
+  const end = String(req.body.checkin_end || '');
+  if ((start && !isTime(start)) || (end && !isTime(end))) return back(req, res, 'Use times like 15:30.');
+  if (start && end && start >= end) return back(req, res, 'The check-in end time must be after the start time.');
+  setSetting('checkin_code_required', req.body.checkin_code_required === '1' ? '1' : '0');
+  setSetting('checkin_start', start);
+  setSetting('checkin_end', end);
+  back(req, res, 'Student check-in rules saved.');
+});
+
+// Gives every active student without a PIN a new one and shows them once (printable). PINs are stored hashed.
+router.post('/settings/pins', (req, res) => {
+  const rows = db
+    .prepare(
+      `SELECT s.id, s.student_no, s.name, c.grade FROM students s JOIN classes c ON c.id = s.class_id
+       WHERE s.status = 'active' AND s.pin_hash IS NULL ORDER BY c.grade, s.name`
+    )
+    .all();
+  const set = db.prepare('UPDATE students SET pin_hash = ? WHERE id = ?');
+  db.transaction(() => {
+    for (const r of rows) {
+      r.pin = String(crypto.randomInt(0, 10000)).padStart(4, '0');
+      set.run(bcrypt.hashSync(r.pin, 8), r.id);
+    }
+  })();
+  res.set('Cache-Control', 'no-store');
+  res.render('pin_cards', { rows, appUrl: `${req.protocol}://${req.get('host')}/student` });
 });
 
 router.post('/settings/teachers', (req, res) => {

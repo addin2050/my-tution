@@ -1,0 +1,16 @@
+<%- include('partials/s_head', {title: 'Student sign in'}) %>
+<h1>Mark my attendance</h1>
+<div class="card">
+  <% if (error) { %><div class="error"><%= error %></div><% } %>
+  <form method="post" action="/student/login" autocomplete="off">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label for="sn">Student ID</label>
+    <%# type=tel and one-time-code keep browsers from filling in a saved staff login here %>
+    <input id="sn" name="student_no" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="9" placeholder="e.g. 0007" value="<%= studentNo %>" autocomplete="off" required autofocus>
+    <label for="pin">PIN</label>
+    <input id="pin" name="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="4-digit PIN" autocomplete="one-time-code" required>
+    <p><button class="btn block">Sign in</button></p>
+  </form>
+  <p class="small muted" style="margin:0">Your ID and PIN are given by your teacher. Tip: add this page to your phone's home screen to open it like an app.</p>
+</div>
+<%- include('partials/s_foot') %>

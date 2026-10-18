@@ -1,6 +1,7 @@
 const express = require('express');
 const { db } = require('../db');
 const { today, isDate, monthOf } = require('../lib/dates');
+const { dailyCode, codeRequired } = require('../lib/checkin');
 
 const router = express.Router();
 const STATUSES = ['present', 'absent', 'late'];
@@ -16,7 +17,7 @@ router.get('/attendance', (req, res) => {
   if (classId) {
     students = db
       .prepare(
-        `SELECT s.id, s.name, a.status AS saved FROM students s
+        `SELECT s.id, s.name, a.status AS saved, a.source, a.marked_at FROM students s
          LEFT JOIN attendance a ON a.student_id = s.id AND a.date = ?
          WHERE s.class_id = ? AND s.status = 'active' ORDER BY s.name`
       )
@@ -24,7 +25,9 @@ router.get('/attendance', (req, res) => {
     marked = students.some((s) => s.saved);
     noClass = !!db.prepare('SELECT 1 FROM no_class WHERE class_id = ? AND date = ?').get(classId, date);
   }
-  res.render('attendance', { classes: classes(), classId, date, students, noClass, marked });
+  const checkedIn = students.filter((s) => s.source === 'self').length;
+  const code = date === today() && codeRequired() ? dailyCode(date) : null;
+  res.render('attendance', { classes: classes(), classId, date, students, noClass, marked, checkedIn, code });
 });
 
 router.post('/attendance', (req, res) => {

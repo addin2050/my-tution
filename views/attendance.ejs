@@ -15,16 +15,19 @@
   </div>
 </form>
 
+<% if (code) { %>
+<div class="card"><span class="small muted">Today's check-in code for students</span><div class="code"><%= code %></div></div>
+<% } %>
 <% if (classId) { %>
 <form class="card" method="post" action="/attendance">
   <input type="hidden" name="_csrf" value="<%= csrf %>">
   <input type="hidden" name="class_id" value="<%= classId %>">
   <input type="hidden" name="date" value="<%= date %>">
   <% if (!students.length) { %><p class="muted">No active students in this class.</p><% } else { %>
-  <p class="small muted"><%= marked ? 'Already marked — saving will update it.' : 'Everyone starts as present. Tap to change.' %></p>
+  <p class="small muted"><%= marked ? 'Already marked — saving will update it.' : 'Everyone starts as present. Tap to change.' %><% if (checkedIn) { %> <b><%= checkedIn %></b> checked in from the student app.<% } %></p>
   <% students.forEach(s => { const cur = s.saved || 'present'; %>
     <div class="att-row">
-      <div class="nm"><%= s.name %></div>
+      <div class="nm"><%= s.name %><% if (s.source === 'self') { %> <span class="badge ok">checked in <%= s.marked_at ? s.marked_at.slice(11, 16) : '' %></span><% } %></div>
       <div class="seg">
         <input type="radio" id="p<%= s.id %>" name="s_<%= s.id %>" value="present" <%= cur === 'present' ? 'checked' : '' %>><label class="p" for="p<%= s.id %>">P</label>
         <input type="radio" id="l<%= s.id %>" name="s_<%= s.id %>" value="late" <%= cur === 'late' ? 'checked' : '' %>><label class="l" for="l<%= s.id %>">L</label>

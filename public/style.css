@@ -141,3 +141,20 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .actions { display: flex; flex-wrap: wrap; gap: .6rem; }
 .actions .btn { flex: 1 1 9rem; }
 .hero .logo { display: block; margin: 0 auto .9rem; border-radius: 24px; box-shadow: 0 10px 34px rgba(109, 94, 240, .5); }
+
+.eyebrow { color: var(--accent); font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 .4rem; }
+.center { text-align: center; }
+.wrap.narrow { max-width: 460px; }
+.s-brand { display: flex; align-items: center; gap: .7rem; justify-content: center; font-weight: 700; margin: .4rem 0 1.2rem; }
+.s-brand img { border-radius: 12px; box-shadow: 0 4px 16px rgba(109, 94, 240, .45); }
+body.student-app { padding-bottom: 2rem; }
+.bigbtn { font-size: 1.25rem; padding: 1.1rem 1rem; min-height: 64px; }
+.status-icon { width: 4rem; height: 4rem; line-height: 4rem; border-radius: 50%; margin: 0 auto; font-size: 1.8rem; background: var(--card-2); color: var(--muted); }
+.status-icon.ok { background: var(--ok-bg); color: var(--ok); }
+.status-icon.bad { background: var(--bad-bg); color: var(--bad); }
+.code { font-size: 2.2rem; font-weight: 800; letter-spacing: .3em; color: var(--accent); margin-top: .2rem; }
+.pin-big { font-size: 3rem; font-weight: 800; letter-spacing: .35em; color: var(--accent); text-align: center; margin: .6rem 0; }
+@media print {
+  .pin-card { break-inside: avoid; border: 1px solid #999 !important; background: #fff !important; box-shadow: none !important; color: #000 !important; }
+  .pin-card .muted, .pin-card td, .pin-card th { color: #000 !important; }
+}

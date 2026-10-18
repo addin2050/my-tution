@@ -1,0 +1,57 @@
+<%- include('partials/s_head', {title: 'My attendance'}) %>
+<p class="eyebrow center"><%= new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+<h1 class="center" style="margin-bottom:.2rem"><%= s.name %></h1>
+<p class="center muted" style="margin-top:0">#<%= studentNoLabel %> · Class <%= s.grade %></p>
+
+<div class="card center">
+  <% if (state.kind === 'marked') { %>
+    <div class="status-icon <%= state.row.status === 'absent' ? 'bad' : 'ok' %>"><%= state.row.status === 'absent' ? '✕' : '✓' %></div>
+    <h2 style="margin:.4rem 0">
+      <% if (state.row.status === 'present') { %>You're marked present<% } else if (state.row.status === 'late') { %>You're marked late<% } else { %>You're marked absent<% } %>
+    </h2>
+    <p class="muted small" style="margin:0">
+      <% if (state.row.source === 'self') { %>Checked in at <%= state.row.marked_at ? state.row.marked_at.slice(11, 16) : '' %><% } else { %>Marked by your teacher<% } %>
+    </p>
+  <% } else if (state.kind === 'noclass') { %>
+    <div class="status-icon">☾</div>
+    <h2 style="margin:.4rem 0">No class today</h2>
+    <p class="muted small" style="margin:0">Enjoy the day off.</p>
+  <% } else if (state.kind === 'closed') { %>
+    <div class="status-icon">⏲</div>
+    <h2 style="margin:.4rem 0">Check-in is closed</h2>
+    <p class="muted small" style="margin:0"><%= state.message %></p>
+  <% } else { %>
+    <form method="post" action="/student/checkin">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <% if (state.codeRequired) { %>
+        <label for="code" style="text-align:left">Today's code (ask your teacher)</label>
+        <input id="code" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="4-digit code" autocomplete="off" required style="text-align:center;font-size:1.4rem;letter-spacing:.3em">
+      <% } %>
+      <button class="btn block bigbtn" style="margin-top:.8rem">I'm present</button>
+    </form>
+  <% } %>
+</div>
+
+<div class="card">
+  <h2>This month</h2>
+  <div class="stats" style="margin:0 0 .6rem;grid-template-columns:repeat(3,1fr)">
+    <div class="stat ok"><div class="v"><%= counts.present %></div><div class="l">Present</div></div>
+    <div class="stat warn"><div class="v"><%= counts.late %></div><div class="l">Late</div></div>
+    <div class="stat"><div class="v" style="color:var(--bad)"><%= counts.absent %></div><div class="l">Absent</div></div>
+  </div>
+  <% if (percent !== null) { %><p class="small muted" style="margin:0">Attendance: <b><%= percent %>%</b></p><% } %>
+</div>
+
+<div class="card">
+  <h2>Recent days</h2>
+  <% if (!recent.length) { %><p class="muted">Nothing recorded yet.</p><% } %>
+  <ul class="list">
+    <% recent.forEach(r => { %>
+      <li><div class="grow"><b><%= fmtDate(r.date) %></b></div>
+        <span class="badge <%= r.status === 'present' ? 'ok' : r.status === 'late' ? 'warn' : 'bad' %>"><%= r.status %></span></li>
+    <% }) %>
+  </ul>
+</div>
+
+<form method="post" action="/student/logout" class="center"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn secondary sm">Sign out</button></form>
+<%- include('partials/s_foot') %>

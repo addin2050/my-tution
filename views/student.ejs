@@ -16,6 +16,10 @@
   <h2>Details</h2>
   <dl class="kv">
     <dt>Student ID</dt><dd><%= sid(student.student_no) %></dd>
+    <dt>App PIN</dt><dd>
+      <%= student.pin_hash ? 'Set' : 'Not set' %>
+      <form method="post" action="/students/<%= student.id %>/pin" style="display:inline" <% if (student.pin_hash) { %>onsubmit="return confirm('Make a new PIN? The old one stops working.')"<% } %>>
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn sm secondary" style="margin-left:.5rem"><%= student.pin_hash ? 'Reset PIN' : 'Create PIN' %></button></form></dd>
     <dt>Guardian</dt><dd><%= student.guardian_name || '—' %></dd>
     <dt>Phone</dt><dd><% if (student.phone) { %><a href="tel:<%= student.phone %>"><%= student.phone %></a><% } else { %>—<% } %></dd>
     <dt>Fees start</dt><dd><%= monthLabel(student.join_month) %></dd>

@@ -3,10 +3,10 @@ process.env.TZ = process.env.TZ || 'Asia/Kolkata';
 const express = require('express');
 const session = require('express-session');
 const crypto = require('crypto');
-const fs = require('fs');
 const path = require('path');
-const { allSettings, dataDir } = require('./db');
+const { allSettings } = require('./db');
 const SqliteStore = require('./lib/sessionStore');
+const { appSecret } = require('./lib/secret');
 const { ensureDues } = require('./lib/fees');
 const dates = require('./lib/dates');
 const { fmtStudentNo } = require('./lib/studentId');
@@ -19,20 +19,12 @@ app.set('views', path.join(__dirname, 'views'));
 if (isProd) app.set('trust proxy', 1);
 app.disable('x-powered-by');
 
-// Persist a generated session secret so logins survive restarts.
-function sessionSecret() {
-  if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
-  const file = path.join(dataDir, '.session_secret');
-  if (!fs.existsSync(file)) fs.writeFileSync(file, crypto.randomBytes(32).toString('hex'), { mode: 0o600 });
-  return fs.readFileSync(file, 'utf8');
-}
-
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: isProd ? '1d' : 0 }));
 app.use(express.urlencoded({ extended: false }));
 app.use(
   session({
     store: new SqliteStore(),
-    secret: sessionSecret(),
+    secret: appSecret(),
     resave: false,
     saveUninitialized: true,
     cookie: { httpOnly: true, sameSite: 'lax', secure: isProd ? 'auto' : false, maxAge: 7 * 86400 * 1000 },
@@ -79,6 +71,7 @@ const requireAdmin = (req, res, next) => {
 };
 
 app.use(require('./routes/auth'));
+app.use('/student', require('./routes/student')); // the student app has its own sign-in
 app.use(requireLogin);
 app.use(require('./routes/welcome'));
 app.use(require('./routes/attendance'));

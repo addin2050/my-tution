@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#6d5ef0">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/student/manifest.webmanifest">
+  <title><%= typeof title !== 'undefined' ? title + ' · ' : '' %><%= settings.center_name %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="student-app">
+<main class="wrap narrow">
+<div class="s-brand"><img src="/logo.svg" width="44" height="44" alt=""><span><%= settings.center_name %></span></div>
+<% if (flash) { %><div class="flash"><%= flash %></div><% } %>

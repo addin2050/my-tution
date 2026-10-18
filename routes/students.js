@@ -1,4 +1,6 @@
 const express = require('express');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const { db } = require('../db');
 const { ensureDues, pendingDues, pendingTotal } = require('../lib/fees');
 const { today, monthOf, isMonth } = require('../lib/dates');
@@ -149,6 +151,16 @@ router.post('/students/:id/edit', (req, res) => {
   ensureDues(existing.id);
   req.session.flash = 'Student updated.';
   res.redirect(`/students/${existing.id}`);
+});
+
+// Creates (or replaces) the student's 4-digit PIN for the student app. It is stored hashed, so this page is the only time it is visible.
+router.post('/students/:id/pin', (req, res) => {
+  const student = db.prepare('SELECT id, student_no, name FROM students WHERE id = ?').get(req.params.id);
+  if (!student) return res.status(404).render('error', { message: 'Student not found.' });
+  const pin = String(crypto.randomInt(0, 10000)).padStart(4, '0');
+  db.prepare('UPDATE students SET pin_hash = ? WHERE id = ?').run(bcrypt.hashSync(pin, 8), student.id);
+  res.set('Cache-Control', 'no-store');
+  res.render('student_pin', { student, pin, appUrl: `${req.protocol}://${req.get('host')}/student` });
 });
 
 // Used by the quick-collect search box.
