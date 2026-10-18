@@ -1,0 +1,50 @@
+<%- include('partials/head', {title: 'Student profile'}) %>
+<h1>Student profile</h1>
+<div class="card">
+  <label for="q">Find a student by name or ID</label>
+  <input id="q" type="search" placeholder="e.g. Aarav or 0007" autocomplete="off" autofocus>
+  <label for="grade">Class</label>
+  <select id="grade">
+    <option value="">All classes</option>
+    <% grades.forEach(g => { %><option value="<%= g %>">Class <%= g %></option><% }) %>
+  </select>
+  <ul class="list" id="results" style="margin-top:.8rem"></ul>
+  <p class="muted small" id="hint">Type a name or ID, or pick a class to see its students.</p>
+</div>
+<script>
+(function () {
+  const q = document.getElementById('q'), grade = document.getElementById('grade');
+  const out = document.getElementById('results'), hint = document.getElementById('hint');
+  const currency = <%- JSON.stringify(settings.currency) %>;
+  const money = (n) => currency + Number(n).toLocaleString('en-IN');
+  const idle = 'Type a name or ID, or pick a class to see its students.';
+  let timer, seq = 0;
+  async function run() {
+    const my = ++seq;
+    const term = q.value.trim();
+    if (!term && !grade.value) { out.textContent = ''; hint.hidden = false; hint.textContent = idle; return; }
+    const res = await fetch('/api/students?q=' + encodeURIComponent(term) + '&grade=' + encodeURIComponent(grade.value));
+    const rows = await res.json();
+    if (my !== seq) return;
+    out.textContent = '';
+    hint.hidden = rows.length > 0;
+    if (!rows.length) { hint.textContent = 'No students found.'; return; }
+    for (const s of rows) {
+      const li = document.createElement('li');
+      const a = document.createElement('a'); a.href = '/students/' + s.id; a.className = 'grow'; a.style.color = 'inherit';
+      const b = document.createElement('b'); b.textContent = s.name;
+      const sp = document.createElement('span'); sp.className = 'small muted';
+      sp.textContent = '#' + String(s.student_no).padStart(4, '0') + ' · Class ' + s.grade;
+      a.append(b, sp);
+      const badge = document.createElement('span');
+      badge.className = 'badge ' + (s.pending > 0 ? 'warn' : 'ok');
+      badge.textContent = s.pending > 0 ? money(s.pending) + ' due' : 'Paid';
+      li.append(a, badge);
+      out.append(li);
+    }
+  }
+  q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 150); });
+  grade.addEventListener('change', run);
+})();
+</script>
+<%- include('partials/foot') %>

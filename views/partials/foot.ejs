@@ -1,9 +1,14 @@
 </main>
-<% if (user) { const p = currentPath; const on = (x) => (x === '/' ? p === '/' : p.startsWith(x)) ? 'active' : ''; %>
+<% if (user) {
+  const p = currentPath;
+  const isProfile = p.startsWith('/profile') || /^\/students\/\d+$/.test(p); // a student's own page counts as Profile
+  const on = (x) => (x === '/' ? p === '/' : p.startsWith(x)) ? 'active' : '';
+%>
 <nav class="bottomnav">
   <% if (user.role === 'admin') { %>
     <a class="<%= on('/') %>" href="/"><span class="ic">⌂</span>Home</a>
-    <a class="<%= on('/students') %>" href="/students"><span class="ic">☺</span>Students</a>
+    <a class="<%= p.startsWith('/students') && !isProfile ? 'active' : '' %>" href="/students"><span class="ic">☺</span>Students</a>
+    <a class="<%= isProfile ? 'active' : '' %>" href="/profile"><span class="ic">◎</span>Profile</a>
     <a class="cta" href="/collect"><span class="ic">+</span><span class="lb">Collect</span></a>
     <a class="<%= on('/attendance') %>" href="/attendance"><span class="ic">✓</span>Attendance</a>
     <a class="<%= on('/reports') %>" href="/reports"><span class="ic">▮</span>Reports</a>

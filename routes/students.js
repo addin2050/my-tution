@@ -67,6 +67,11 @@ router.get('/students', (req, res) => {
   res.render('students', { rows, grades: GRADES, q, grade, show });
 });
 
+// Profile tab: search for a student by name or ID, then open their profile.
+router.get('/profile', (req, res) => {
+  res.render('profile_search', { grades: GRADES });
+});
+
 router.get('/students/new', (req, res) => {
   res.render('student_form', {
     student: { join_month: monthOf(today()), class_id: Number(req.query.class_id) || '' },
@@ -157,7 +162,7 @@ router.get('/api/students', (req, res) => {
               COALESCE((SELECT SUM(balance) FROM due_balance b WHERE b.student_id = s.id AND b.month <= ?), 0) AS pending
        FROM students s JOIN classes c ON c.id = s.class_id
        WHERE s.status = 'active' AND (s.name LIKE '%' || ? || '%' OR printf('%04d', s.student_no) LIKE '%' || ? || '%') AND (? IS NULL OR c.grade = ?)
-       ORDER BY s.name LIMIT 30`
+       ORDER BY s.name LIMIT 60`
     )
     .all(month, term, term, grade, grade);
   res.json(rows);
