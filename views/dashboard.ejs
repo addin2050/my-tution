@@ -1,0 +1,51 @@
+<%- include('partials/head', {title: 'Home'}) %>
+<% const pct = stats.billedMonth ? Math.min(100, Math.round(stats.collectedMonth / stats.billedMonth * 100)) : 0; %>
+<a class="btn block" style="margin-bottom:1rem" href="/collect">+ Collect fee</a>
+
+<div class="stats">
+  <div class="stat ok"><div class="v"><%= fmtMoney(stats.collectedMonth) %></div><div class="l">Collected in <%= monthLabel(month) %></div></div>
+  <div class="stat"><div class="v"><%= fmtMoney(stats.collectedToday) %></div><div class="l">Collected today</div></div>
+  <div class="stat warn"><div class="v"><%= fmtMoney(stats.pending) %></div><div class="l">Total pending</div></div>
+  <div class="stat"><div class="v"><%= stats.students %></div><div class="l">Active students</div></div>
+</div>
+
+<div class="card">
+  <h2>This month's collection</h2>
+  <div class="small muted"><%= fmtMoney(stats.collectedMonth) %> collected of <%= fmtMoney(stats.billedMonth) %> billed this month (<%= pct %>%). Payments can also clear older dues.</div>
+  <div class="bar"><i style="width:<%= pct %>%"></i></div>
+</div>
+
+<div class="card">
+  <h2>Today's attendance</h2>
+  <% if (!att.classesMarked) { %>
+    <p class="muted">Not marked yet. <a href="/attendance">Mark attendance</a></p>
+  <% } else { %>
+    <p><span class="badge ok"><%= att.present %> present</span> <span class="badge warn"><%= att.late %> late</span> <span class="badge bad"><%= att.absent %> absent</span>
+    <span class="small muted">· <%= att.classesMarked %> of 12 classes marked</span></p>
+  <% } %>
+</div>
+
+<div class="card">
+  <h2>Highest pending <a class="small" style="float:right" href="/pending">See all</a></h2>
+  <% if (!defaulters.length) { %><p class="muted">Nobody has pending fees. 🎉</p><% } %>
+  <ul class="list">
+    <% defaulters.forEach(d => { %>
+      <li><div class="grow"><b><a href="/students/<%= d.id %>"><%= d.name %></a></b><span class="small muted"><%= d.grade %><%= d.division %> · <%= d.months %> month<%= d.months > 1 ? 's' : '' %></span></div>
+      <b><%= fmtMoney(d.pending) %></b>
+      <a class="btn sm secondary" href="/collect/<%= d.id %>">Collect</a></li>
+    <% }) %>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Recent payments</h2>
+  <% if (!recent.length) { %><p class="muted">No payments yet.</p><% } %>
+  <ul class="list">
+    <% recent.forEach(p => { %>
+      <li><div class="grow"><b><%= p.name %> <small class="muted">(<%= p.grade %><%= p.division %>)</small></b><span class="small muted"><%= p.receipt_no %> · <%= fmtDate(p.paid_on) %><%= p.status === 'void' ? ' · VOID' : '' %></span></div>
+      <b><%= fmtMoney(p.amount) %></b>
+      <a class="btn sm secondary" href="/receipts/<%= p.id %>">View</a></li>
+    <% }) %>
+  </ul>
+</div>
+<%- include('partials/foot') %>

@@ -1,0 +1,27 @@
+<%- include('partials/head', {title: 'Students'}) %>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem"><h1>Students</h1><a class="btn sm" href="/students/new<%= classId ? '?class_id=' + classId : '' %>">+ Add</a></div>
+<form class="card" method="get" action="/students">
+  <div class="row two">
+    <div><label>Search name</label><input name="q" value="<%= q %>" placeholder="Student name"></div>
+    <div><label>Class</label>
+      <select name="class_id" onchange="this.form.submit()">
+        <option value="">All classes</option>
+        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+      </select></div>
+  </div>
+  <label><input type="checkbox" name="show" value="all" <%= show === 'all' ? 'checked' : '' %> onchange="this.form.submit()" style="width:auto;min-height:0"> Include left / graduated</label>
+  <p><button class="btn secondary sm">Search</button></p>
+</form>
+<div class="card">
+  <% if (!rows.length) { %><p class="muted">No students found.</p><% } %>
+  <ul class="list">
+    <% rows.forEach(s => { %>
+      <li><div class="grow"><b><a href="/students/<%= s.id %>"><%= s.name %></a></b>
+        <span class="small muted"><%= s.grade %><%= s.division %><%= s.status !== 'active' ? ' · ' + s.status : '' %></span></div>
+        <% if (s.pending > 0) { %><span class="badge warn"><%= fmtMoney(s.pending) %> due</span><% } else { %><span class="badge ok">Paid</span><% } %>
+      </li>
+    <% }) %>
+  </ul>
+  <p class="small muted"><%= rows.length %> student<%= rows.length === 1 ? '' : 's' %></p>
+</div>
+<%- include('partials/foot') %>

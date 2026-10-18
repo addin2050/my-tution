@@ -1,0 +1,30 @@
+<%- include('partials/head', {title: isNew ? 'Add student' : 'Edit student'}) %>
+<h1><%= isNew ? 'Add student' : 'Edit student' %></h1>
+<% errors.forEach(e => { %><div class="error"><%= e %></div><% }) %>
+<form class="card" method="post">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label>Student name *</label><input name="name" value="<%= student.name || '' %>" required>
+  <div class="row two">
+    <div><label>Class *</label>
+      <select name="class_id" required>
+        <option value="">Select class</option>
+        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= Number(student.class_id) === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %> (<%= fmtMoney(c.monthly_fee) %>/month)</option><% }) %>
+      </select></div>
+    <div><label>Fees start from</label><input type="month" name="join_month" value="<%= student.join_month %>" required></div>
+  </div>
+  <div class="row two">
+    <div><label>Guardian name</label><input name="guardian_name" value="<%= student.guardian_name || '' %>"></div>
+    <div><label>Guardian phone</label><input name="phone" type="tel" inputmode="tel" value="<%= student.phone || '' %>"></div>
+  </div>
+  <label>Notes</label><textarea name="notes" rows="2"><%= student.notes || '' %></textarea>
+  <% if (!isNew) { %>
+    <label>Status</label>
+    <select name="status">
+      <option value="active" <%= student.status === 'active' ? 'selected' : '' %>>Active</option>
+      <option value="left" <%= student.status === 'left' ? 'selected' : '' %>>Left (stops new fees)</option>
+      <% if (student.status === 'graduated') { %><option value="graduated" selected>Graduated</option><% } %>
+    </select>
+  <% } %>
+  <p><button class="btn block">Save</button></p>
+</form>
+<%- include('partials/foot') %>

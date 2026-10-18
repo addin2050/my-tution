@@ -1,0 +1,37 @@
+<%- include('partials/head', {title: 'Collect fee'}) %>
+<h1>Collect fee</h1>
+<div class="card">
+  <b><a href="/students/<%= student.id %>"><%= student.name %></a></b> <span class="badge"><%= student.grade %><%= student.division %></span>
+  <div class="stats" style="margin:.8rem 0 0">
+    <div class="stat <%= pending > 0 ? 'warn' : 'ok' %>"><div class="v"><%= fmtMoney(pending) %></div><div class="l">Pending</div></div>
+    <div class="stat"><div class="v"><%= fmtMoney(student.monthly_fee) %></div><div class="l">Monthly fee</div></div>
+  </div>
+  <% if (pendingMonths.length) { %>
+    <p class="small muted" style="margin-bottom:0">Pending: <%= pendingMonths.map(m => monthLabel(m.month) + (m.paid > 0 ? ' (' + fmtMoney(m.balance) + ' left)' : '')).join(', ') %></p>
+  <% } else { %>
+    <p class="small muted" style="margin-bottom:0">All dues are paid. Any amount entered will be taken as an advance for upcoming months.</p>
+  <% } %>
+</div>
+
+<% if (error) { %><div class="error"><%= error %></div><% } %>
+<form class="card" method="post" action="/collect/<%= student.id %>">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label for="amount">Amount (<%= settings.currency %>)</label>
+  <input id="amount" name="amount" type="number" inputmode="numeric" min="1" step="1" required autofocus value="<%= form.amount || (pending > 0 ? pending : student.monthly_fee) %>" style="font-size:1.4rem;font-weight:700">
+  <div class="chips" style="padding-top:.6rem">
+    <% if (pending > 0) { %><button type="button" class="chip" data-amt="<%= pending %>">Full <%= fmtMoney(pending) %></button><% } %>
+    <% if (pendingMonths.length) { %><button type="button" class="chip" data-amt="<%= pendingMonths[0].balance %>">Oldest month <%= fmtMoney(pendingMonths[0].balance) %></button><% } %>
+    <button type="button" class="chip" data-amt="<%= student.monthly_fee %>">1 month <%= fmtMoney(student.monthly_fee) %></button>
+  </div>
+  <div class="row two">
+    <div><label for="method">Method</label>
+      <select id="method" name="method"><% methods.forEach(m => { %><option <%= form.method === m ? 'selected' : '' %>><%= m %></option><% }) %></select></div>
+    <div><label for="paid_on">Date</label><input id="paid_on" type="date" name="paid_on" value="<%= form.paid_on %>" max="<%= today() %>" required></div>
+  </div>
+  <label for="note">Note (optional)</label><input id="note" name="note" maxlength="200" value="<%= form.note || '' %>">
+  <p><button class="btn block">Save &amp; create receipt</button></p>
+</form>
+<script>
+document.querySelectorAll('[data-amt]').forEach((b) => b.addEventListener('click', () => { document.getElementById('amount').value = b.dataset.amt; }));
+</script>
+<%- include('partials/foot') %>

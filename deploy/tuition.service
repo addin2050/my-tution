@@ -1,0 +1,21 @@
+[Unit]
+Description=Tuition center management app
+After=network.target
+
+[Service]
+Type=simple
+User=tuition
+WorkingDirectory=/opt/tuition
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=TZ=Asia/Kolkata
+# Optional: ADMIN_USER / ADMIN_PASSWORD are only used on the very first start (empty database).
+# EnvironmentFile=/etc/tuition.env
+ExecStart=/usr/bin/node app.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

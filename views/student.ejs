@@ -1,0 +1,53 @@
+<%- include('partials/head', {title: student.name}) %>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+  <h1><%= student.name %> <span class="badge"><%= student.grade %><%= student.division %></span><% if (student.status !== 'active') { %> <span class="badge bad"><%= student.status %></span><% } %></h1>
+  <a class="btn sm secondary" href="/students/<%= student.id %>/edit">Edit</a>
+</div>
+
+<div class="card">
+  <div class="stats" style="margin:0">
+    <div class="stat <%= pending > 0 ? 'warn' : 'ok' %>"><div class="v"><%= fmtMoney(pending) %></div><div class="l">Pending amount</div></div>
+    <div class="stat"><div class="v"><%= fmtMoney(student.monthly_fee) %></div><div class="l">Monthly fee</div></div>
+  </div>
+  <% if (student.status === 'active') { %><p style="margin:1rem 0 0"><a class="btn block" href="/collect/<%= student.id %>">Collect fee</a></p><% } %>
+</div>
+
+<div class="card">
+  <h2>Details</h2>
+  <dl class="kv">
+    <dt>Guardian</dt><dd><%= student.guardian_name || '—' %></dd>
+    <dt>Phone</dt><dd><% if (student.phone) { %><a href="tel:<%= student.phone %>"><%= student.phone %></a><% } else { %>—<% } %></dd>
+    <dt>Fees start</dt><dd><%= monthLabel(student.join_month) %></dd>
+    <% if (student.notes) { %><dt>Notes</dt><dd><%= student.notes %></dd><% } %>
+  </dl>
+</div>
+
+<div class="card">
+  <h2>Fee status by month</h2>
+  <% if (!months.length) { %><p class="muted">No fees billed yet.</p><% } %>
+  <div class="scroll"><table>
+    <% months.forEach(m => { %>
+      <tr><td><%= monthLabel(m.month) %></td><td class="num"><%= fmtMoney(m.amount) %></td>
+      <td class="right"><% if (m.balance <= 0) { %><span class="badge ok">Paid</span><% } else if (m.paid > 0) { %><span class="badge warn"><%= fmtMoney(m.balance) %> left</span><% } else { %><span class="badge bad">Unpaid</span><% } %></td></tr>
+    <% }) %>
+  </table></div>
+</div>
+
+<div class="card">
+  <h2>Payment receipts</h2>
+  <% if (!payments.length) { %><p class="muted">No payments yet.</p><% } %>
+  <ul class="list">
+    <% payments.forEach(p => { %>
+      <li><div class="grow"><b><%= fmtMoney(p.amount) %> <% if (p.status === 'void') { %><span class="badge bad">VOID</span><% } %></b>
+        <span class="small muted"><%= p.receipt_no %> · <%= fmtDate(p.paid_on) %> · <%= p.method %></span></div>
+        <a class="btn sm secondary" href="/receipts/<%= p.id %>">View</a>
+        <a class="btn sm" href="/receipts/<%= p.id %>/pdf">PDF</a></li>
+    <% }) %>
+  </ul>
+</div>
+
+<div class="card">
+  <h2>Attendance this month</h2>
+  <span class="badge ok"><%= attendance.present %> present</span> <span class="badge warn"><%= attendance.late %> late</span> <span class="badge bad"><%= attendance.absent %> absent</span>
+</div>
+<%- include('partials/foot') %>

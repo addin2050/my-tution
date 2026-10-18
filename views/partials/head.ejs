@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#6d5ef0">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <title><%= typeof title !== 'undefined' ? title + ' · ' : '' %><%= settings.center_name %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<% if (user) { %>
+<header class="topbar"><div class="in">
+  <a class="brand" href="<%= user.role === 'admin' ? '/' : '/attendance' %>"><%= settings.center_name %></a>
+  <% if (user.role === 'admin') { %>
+    <a class="tl" href="/pending">Pending</a>
+    <a class="tl" href="/settings">Settings</a>
+  <% } %>
+  <form method="post" action="/logout"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="tl">Log out</button></form>
+</div></header>
+<% } %>
+<main class="wrap">
+<% if (flash) { %><div class="flash"><%= flash %></div><% } %>

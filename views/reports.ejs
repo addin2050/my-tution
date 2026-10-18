@@ -1,0 +1,93 @@
+<%- include('partials/head', {title: 'Reports'}) %>
+<%
+  const qs = (o) => new URLSearchParams(Object.entries(o).filter(([, v]) => v !== null && v !== '' && v !== undefined)).toString();
+  const keep = { class_id: classId };
+  const exportQs = qs({ range: range.key, from: range.from, to: range.to, class_id: classId });
+%>
+<h1>Reports</h1>
+
+<div class="chips">
+  <% presets.forEach(([key, label]) => { %>
+    <% if (key !== 'custom') { %>
+      <a class="chip <%= range.key === key ? 'on' : '' %>" href="/reports?<%= qs({ range: key, ...keep }) %>"><%= label %></a>
+    <% } else { %>
+      <a class="chip <%= range.key === 'custom' ? 'on' : '' %>" href="#custom" onclick="document.getElementById('custom').hidden=false;return false;"><%= label %></a>
+    <% } %>
+  <% }) %>
+</div>
+
+<form class="card" id="custom" method="get" <%= range.key === 'custom' ? '' : 'hidden' %>>
+  <input type="hidden" name="range" value="custom">
+  <div class="row three">
+    <div><label>From</label><input type="date" name="from" value="<%= range.from %>" required></div>
+    <div><label>To</label><input type="date" name="to" value="<%= range.to %>" required></div>
+    <div><label>Class</label>
+      <select name="class_id"><option value="">All</option>
+        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %></select></div>
+  </div>
+  <p><button class="btn sm">Apply</button></p>
+</form>
+
+<% if (range.key !== 'custom') { %>
+<form method="get" style="margin-bottom:1rem">
+  <input type="hidden" name="range" value="<%= range.key %>">
+  <select name="class_id" onchange="this.form.submit()" aria-label="Class">
+    <option value="">All classes</option>
+    <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+  </select>
+</form>
+<% } %>
+
+<p class="muted small"><%= range.from === range.to ? fmtDate(range.from) : fmtDate(range.from) + ' – ' + fmtDate(range.to) %></p>
+
+<div class="stats">
+  <div class="stat ok"><div class="v"><%= fmtMoney(totals.total) %></div><div class="l">Fees collected</div></div>
+  <div class="stat"><div class="v"><%= totals.count %></div><div class="l">Payments</div></div>
+  <div class="stat"><div class="v"><%= fmtMoney(totals.count ? Math.round(totals.total / totals.count) : 0) %></div><div class="l">Average payment</div></div>
+  <div class="stat <%= voided.count ? 'warn' : '' %>"><div class="v"><%= voided.count %></div><div class="l">Voided (<%= fmtMoney(voided.total) %>)</div></div>
+</div>
+
+<% if (series.length > 1) { %>
+<div class="card">
+  <h2>Daily collection</h2>
+  <div class="chart" role="img" aria-label="Daily collection chart">
+    <% series.forEach(s => { %><div class="col" style="height:<%= Math.max(2, Math.round(s.total / maxDay * 100)) %>%" title="<%= fmtDate(s.day) %>: <%= fmtMoney(s.total) %>"></div><% }) %>
+  </div>
+  <div class="chart-axis"><span><%= fmtDate(series[0].day) %></span><span>Peak <%= fmtMoney(maxDay) %></span><span><%= fmtDate(series[series.length - 1].day) %></span></div>
+</div>
+<% } %>
+
+<div class="row two">
+  <div class="card">
+    <h2>By payment method</h2>
+    <% if (!byMethod.length) { %><p class="muted">No payments in this period.</p><% } %>
+    <table><% byMethod.forEach(m => { %><tr><td><%= m.method %> <small class="muted">· <%= m.count %></small></td><td class="num"><%= fmtMoney(m.total) %></td></tr><% }) %></table>
+  </div>
+  <div class="card">
+    <h2>By class</h2>
+    <% if (!byClass.length) { %><p class="muted">No payments in this period.</p><% } %>
+    <table><% byClass.forEach(c => { %><tr><td><%= c.grade %><%= c.division %> <small class="muted">· <%= c.count %></small></td><td class="num"><%= fmtMoney(c.total) %></td></tr><% }) %></table>
+  </div>
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+    <h2 style="margin:0">Payments</h2>
+    <div style="display:flex;gap:.4rem">
+      <a class="btn sm secondary" href="/reports/export.pdf?<%= exportQs %>">PDF</a>
+      <a class="btn sm secondary" href="/reports/export.xlsx?<%= exportQs %>">Excel</a>
+      <a class="btn sm secondary" href="/reports/export.csv?<%= exportQs %>">CSV</a>
+    </div>
+  </div>
+  <% if (!payments.length) { %><p class="muted">No payments in this period.</p><% } %>
+  <div class="scroll"><table>
+    <% payments.forEach(p => { %>
+      <tr>
+        <td><a href="/students/<%= p.student_id %>"><%= p.name %></a><br><small class="muted"><%= p.grade %><%= p.division %> · <%= p.method %></small></td>
+        <td class="nowrap"><small><%= fmtDate(p.paid_on) %></small><br><a class="small" href="/receipts/<%= p.id %>"><%= p.receipt_no %></a></td>
+        <td class="num"><b><%= fmtMoney(p.amount) %></b></td>
+      </tr>
+    <% }) %>
+  </table></div>
+</div>
+<%- include('partials/foot') %>

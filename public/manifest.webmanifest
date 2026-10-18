@@ -1,0 +1,9 @@
+{
+  "name": "Tuition Center",
+  "short_name": "Tuition",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080a14",
+  "theme_color": "#6d5ef0",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

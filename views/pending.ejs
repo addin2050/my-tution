@@ -1,0 +1,22 @@
+<%- include('partials/head', {title: 'Pending fees'}) %>
+<h1>Pending fees</h1>
+<form class="card" method="get">
+  <label>Class</label>
+  <select name="class_id" onchange="this.form.submit()">
+    <option value="">All classes</option>
+    <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+  </select>
+</form>
+<div class="card">
+  <p><b><%= rows.length %></b> student<%= rows.length === 1 ? '' : 's' %> · <b><%= fmtMoney(total) %></b> pending</p>
+  <ul class="list">
+    <% rows.forEach(r => { %>
+      <li><div class="grow"><b><a href="/students/<%= r.id %>"><%= r.name %></a> <small class="muted">(<%= r.grade %><%= r.division %>)</small></b>
+        <span class="small muted"><%= r.months %> month<%= r.months > 1 ? 's' : '' %> since <%= monthLabel(r.oldest) %></span></div>
+        <b><%= fmtMoney(r.pending) %></b>
+        <% if (r.wa) { %><a class="btn sm secondary" href="<%= r.wa %>" target="_blank" rel="noopener">Remind</a><% } %>
+        <a class="btn sm" href="/collect/<%= r.id %>">Collect</a></li>
+    <% }) %>
+  </ul>
+</div>
+<%- include('partials/foot') %>

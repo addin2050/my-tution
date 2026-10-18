@@ -1,0 +1,48 @@
+<%- include('partials/head', {title: 'Collect fee'}) %>
+<h1>Collect fee</h1>
+<div class="card">
+  <label for="q">Search student</label>
+  <input id="q" type="search" placeholder="Type a name…" autocomplete="off" autofocus>
+  <label for="cls">Or filter by class</label>
+  <select id="cls">
+    <option value="">All classes</option>
+    <% classes.forEach(c => { %><option value="<%= c.id %>"><%= c.grade %><%= c.division %></option><% }) %>
+  </select>
+  <ul class="list" id="results" style="margin-top:.8rem"></ul>
+  <p class="muted small" id="hint">Start typing a name or pick a class.</p>
+</div>
+<script>
+(function () {
+  const q = document.getElementById('q'), cls = document.getElementById('cls');
+  const out = document.getElementById('results'), hint = document.getElementById('hint');
+  const currency = <%- JSON.stringify(settings.currency) %>;
+  const money = (n) => currency + Number(n).toLocaleString('en-IN');
+  let timer, seq = 0;
+  async function run() {
+    const my = ++seq;
+    const term = q.value.trim();
+    if (!term && !cls.value) { out.textContent = ''; hint.hidden = false; hint.textContent = 'Start typing a name or pick a class.'; return; }
+    const res = await fetch('/api/students?q=' + encodeURIComponent(term) + '&class_id=' + encodeURIComponent(cls.value));
+    const rows = await res.json();
+    if (my !== seq) return;
+    out.textContent = '';
+    hint.hidden = rows.length > 0;
+    if (!rows.length) { hint.textContent = 'No students found.'; return; }
+    for (const s of rows) {
+      const li = document.createElement('li');
+      const a = document.createElement('a'); a.href = '/collect/' + s.id; a.className = 'grow'; a.style.color = 'inherit';
+      const b = document.createElement('b'); b.textContent = s.name;
+      const sp = document.createElement('span'); sp.className = 'small muted'; sp.textContent = s.grade + s.division;
+      a.append(b, sp);
+      const badge = document.createElement('span');
+      badge.className = 'badge ' + (s.pending > 0 ? 'warn' : 'ok');
+      badge.textContent = s.pending > 0 ? money(s.pending) + ' due' : 'Paid';
+      li.append(a, badge);
+      out.append(li);
+    }
+  }
+  q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 150); });
+  cls.addEventListener('change', run);
+})();
+</script>
+<%- include('partials/foot') %>

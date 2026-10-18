@@ -1,0 +1,30 @@
+<%- include('partials/head', {title: 'Receipt ' + receipt.receipt_no}) %>
+<div class="card">
+  <% if (receipt.status === 'void') { %><div class="error"><b>VOID</b> — <%= receipt.void_reason || 'no reason given' %></div>
+  <% } else { %><div class="flash">Payment recorded.</div><% } %>
+  <h2><%= receipt.receipt_no %></h2>
+  <dl class="kv">
+    <dt>Student</dt><dd><a href="/students/<%= receipt.student_id %>"><%= receipt.student_name %></a> (<%= receipt.grade %><%= receipt.division %>)</dd>
+    <dt>Amount</dt><dd><b><%= fmtMoney(receipt.amount) %></b></dd>
+    <dt>Date</dt><dd><%= fmtDate(receipt.paid_on) %></dd>
+    <dt>Method</dt><dd><%= receipt.method %></dd>
+    <dt>Paid for</dt><dd><%= receipt.months.map(m => monthLabel(m.month) + ' (' + fmtMoney(m.amount) + ')').join(', ') %></dd>
+    <dt>Pending after</dt><dd><%= fmtMoney(receipt.balance_after) %></dd>
+    <% if (receipt.note) { %><dt>Note</dt><dd><%= receipt.note %></dd><% } %>
+    <dt>Collected by</dt><dd><%= receipt.collected_by || '—' %></dd>
+  </dl>
+  <p style="margin-top:1rem"><a class="btn block" href="/receipts/<%= receipt.id %>/pdf">Download PDF receipt</a></p>
+  <% if (wa) { %><p><a class="btn secondary block" href="<%= wa %>" target="_blank" rel="noopener">Send on WhatsApp</a></p><% } %>
+  <p><a class="btn secondary block" href="/collect">Collect another fee</a></p>
+</div>
+<% if (receipt.status === 'valid') { %>
+<details class="card">
+  <summary class="muted">Void this receipt</summary>
+  <form method="post" action="/receipts/<%= receipt.id %>/void" onsubmit="return confirm('Void this receipt? The fees will show as pending again.')">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label>Reason</label><input name="reason" required maxlength="200">
+    <p><button class="btn danger">Void receipt</button></p>
+  </form>
+</details>
+<% } %>
+<%- include('partials/foot') %>

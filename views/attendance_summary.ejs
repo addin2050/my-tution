@@ -1,0 +1,27 @@
+<%- include('partials/head', {title: 'Attendance summary'}) %>
+<h1>Attendance summary</h1>
+<form class="card" method="get">
+  <div class="row two">
+    <div><label>Class</label>
+      <select name="class_id" onchange="this.form.submit()">
+        <option value="">Select class</option>
+        <% classes.forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+      </select></div>
+    <div><label>Month</label><input type="month" name="month" value="<%= month %>" onchange="this.form.submit()"></div>
+  </div>
+</form>
+<% if (classId) { %>
+<div class="card">
+  <% if (!rows.length) { %><p class="muted">No active students in this class.</p><% } %>
+  <div class="scroll"><table>
+    <tr><th>Student</th><th class="num">Present</th><th class="num">Late</th><th class="num">Absent</th><th class="num">%</th></tr>
+    <% rows.forEach(r => { const attended = (r.present || 0) + (r.late || 0); const pct = r.days ? Math.round(attended / r.days * 100) : null; %>
+      <tr><td><a href="/students/<%= r.id %>"><%= r.name %></a></td>
+        <td class="num"><%= r.present || 0 %></td><td class="num"><%= r.late || 0 %></td><td class="num"><%= r.absent || 0 %></td>
+        <td class="num"><% if (pct === null) { %>—<% } else { %><span class="badge <%= pct >= 85 ? 'ok' : pct >= 70 ? 'warn' : 'bad' %>"><%= pct %>%</span><% } %></td></tr>
+    <% }) %>
+  </table></div>
+  <p class="small muted">Late counts as attended. Holiday (no-class) days are not counted.</p>
+</div>
+<% } %>
+<%- include('partials/foot') %>

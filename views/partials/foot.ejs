@@ -1,0 +1,16 @@
+</main>
+<% if (user) { const p = currentPath; const on = (x) => (x === '/' ? p === '/' : p.startsWith(x)) ? 'active' : ''; %>
+<nav class="bottomnav">
+  <% if (user.role === 'admin') { %>
+    <a class="<%= on('/') %>" href="/"><span class="ic">⌂</span>Home</a>
+    <a class="<%= on('/students') %>" href="/students"><span class="ic">☺</span>Students</a>
+    <a class="cta" href="/collect"><span class="ic">+</span><span class="lb">Collect</span></a>
+    <a class="<%= on('/attendance') %>" href="/attendance"><span class="ic">✓</span>Attendance</a>
+    <a class="<%= on('/reports') %>" href="/reports"><span class="ic">▮</span>Reports</a>
+  <% } else { %>
+    <a class="active" href="/attendance"><span class="ic">✓</span>Attendance</a>
+  <% } %>
+</nav>
+<% } %>
+</body>
+</html>

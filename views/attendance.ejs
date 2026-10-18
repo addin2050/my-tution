@@ -1,0 +1,44 @@
+<%- include('partials/head', {title: 'Attendance'}) %>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+  <h1>Attendance</h1>
+  <a class="btn sm secondary" href="/attendance/summary<%= classId ? '?class_id=' + classId : '' %>">Monthly summary</a>
+</div>
+
+<form class="card" method="get" action="/attendance">
+  <div class="row two">
+    <div><label>Class</label>
+      <select name="class_id" onchange="this.form.submit()">
+        <option value="">Select class</option>
+        <% [8, 9, 10].forEach(g => { %><optgroup label="Class <%= g %>">
+          <% classes.filter(c => c.grade === g).forEach(c => { %><option value="<%= c.id %>" <%= classId === c.id ? 'selected' : '' %>><%= c.grade %><%= c.division %></option><% }) %>
+        </optgroup><% }) %>
+      </select></div>
+    <div><label>Date</label><input type="date" name="date" value="<%= date %>" max="<%= today() %>" onchange="this.form.submit()"></div>
+  </div>
+</form>
+
+<% if (classId) { %>
+<form class="card" method="post" action="/attendance">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <input type="hidden" name="class_id" value="<%= classId %>">
+  <input type="hidden" name="date" value="<%= date %>">
+  <% if (!students.length) { %><p class="muted">No active students in this class.</p><% } else { %>
+  <p class="small muted"><%= marked ? 'Already marked — saving will update it.' : 'Everyone starts as present. Tap to change.' %></p>
+  <% students.forEach(s => { const cur = s.saved || 'present'; %>
+    <div class="att-row">
+      <div class="nm"><%= s.name %></div>
+      <div class="seg">
+        <input type="radio" id="p<%= s.id %>" name="s_<%= s.id %>" value="present" <%= cur === 'present' ? 'checked' : '' %>><label class="p" for="p<%= s.id %>">P</label>
+        <input type="radio" id="l<%= s.id %>" name="s_<%= s.id %>" value="late" <%= cur === 'late' ? 'checked' : '' %>><label class="l" for="l<%= s.id %>">L</label>
+        <input type="radio" id="a<%= s.id %>" name="s_<%= s.id %>" value="absent" <%= cur === 'absent' ? 'checked' : '' %>><label class="a" for="a<%= s.id %>">A</label>
+      </div>
+    </div>
+  <% }) %>
+  <label style="display:flex;gap:.5rem;align-items:center;color:var(--text);margin-top:1rem">
+    <input type="checkbox" name="no_class" value="1" <%= noClass ? 'checked' : '' %> style="width:auto;min-height:0"> No class today (holiday) — nobody is marked absent
+  </label>
+  <p><button class="btn block">Save attendance</button></p>
+  <% } %>
+</form>
+<% } %>
+<%- include('partials/foot') %>
